@@ -158,11 +158,16 @@ export function useExtensionData() {
           }
 
           case 'EXTENSION_READY': {
-            console.log('✅ Extension is ready');
+            console.log('✅ Extension is ready, version:', event.data.version);
             setState((prev) => ({
               ...prev,
               isConnected: true,
             }));
+            // Auto-request data when extension announces itself
+            window.postMessage(
+              { source: 'insight-webapp', type: 'REQUEST_DATA' },
+              window.location.origin
+            );
             break;
           }
 

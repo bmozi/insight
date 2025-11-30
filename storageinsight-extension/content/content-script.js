@@ -908,6 +908,22 @@ if (document.readyState === 'complete') {
 window.addEventListener('beforeunload', cleanup);
 window.addEventListener('pagehide', cleanup);
 
+// Announce extension presence to the web app
+// This helps the dashboard detect the extension is installed
+function announceExtension() {
+  window.postMessage({
+    source: 'storageinsight-extension',
+    type: 'EXTENSION_READY',
+    version: '1.0.0',
+  }, window.location.origin);
+  console.log('📢 Extension announced to web app at', window.location.origin);
+}
+
+// Announce immediately and also after a short delay (in case page JS loads later)
+announceExtension();
+setTimeout(announceExtension, 1000);
+setTimeout(announceExtension, 3000);
+
 console.log('✅ StorageInsight content script initialized with performance optimizations');
 console.log('📊 Performance features: Batching (1msg/sec), Pagination (100 items/page), Efficient serialization (<10ms)');
-console.log('🔗 Web app communication enabled for localhost:3000');
+console.log('🔗 Web app communication enabled for', window.location.origin);
