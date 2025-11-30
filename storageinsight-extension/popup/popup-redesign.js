@@ -210,12 +210,37 @@ function displayDetailedAnalysis(analysis) {
         const icon = typeof rec === 'object' ? (rec.icon || '💡') : '💡';
         const severity = typeof rec === 'object' ? (rec.severity || 'medium') : 'medium';
         const action = typeof rec === 'object' ? rec.action : null;
+        const items = typeof rec === 'object' ? rec.items : null;
+
+        // Generate expandable details if items exist - using native details element
+        const detailsHtml = items && items.length > 0 ? `
+          <details class="rec-details-accordion">
+            <summary class="rec-details-summary">View ${items.length} item${items.length !== 1 ? 's' : ''}</summary>
+            <div class="rec-details-body">
+              ${items.slice(0, 8).map(item => {
+                const name = item.name || item.domain || item.key || 'Unknown';
+                const domain = item.domain || '';
+                return `<div class="rec-detail-row">
+                  <span class="detail-name" title="${name}">${name}</span>
+                  ${domain && domain !== name ? `<span class="detail-domain">${domain}</span>` : ''}
+                </div>`;
+              }).join('')}
+              ${items.length > 8 ? `<div class="rec-detail-more">...and ${items.length - 8} more</div>` : ''}
+            </div>
+          </details>
+        ` : '';
 
         return `
-          <div class="recommendation-item ${severity}" title="${description}">
-            <span class="recommendation-number">${icon}</span>
-            <span class="recommendation-text">${title}</span>
-            ${action ? `<button class="recommendation-action-btn" data-action="${action}">Fix</button>` : ''}
+          <div class="recommendation-item ${severity}">
+            <div class="recommendation-badge">${index + 1}</div>
+            <div class="recommendation-content">
+              <div class="recommendation-header">
+                <span class="recommendation-title">${title}</span>
+                ${action ? `<button class="recommendation-action-btn" data-action="${action}">Fix</button>` : ''}
+              </div>
+              ${description ? `<p class="recommendation-desc">${description}</p>` : ''}
+              ${detailsHtml}
+            </div>
           </div>
         `;
       })
@@ -249,13 +274,40 @@ function displayDetailedAnalysis(analysis) {
         const actionMap = {
           'fingerprinting': 'CLEAR_FINGERPRINTING',
           'cross_site_tracking': 'CLEAR_TRACKING',
-          'large_storage': 'CLEAR_LOCALSTORAGE'
+          'large_storage': 'CLEAR_LOCALSTORAGE',
+          'insecure_sensitive': 'CLEAR_INSECURE'
         };
 
         const action = item.type ? actionMap[item.type] : null;
         const actionLabel = action === 'CLEAR_LOCALSTORAGE' ? 'Clear' :
                            action === 'CLEAR_FINGERPRINTING' ? 'Remove' :
-                           action === 'CLEAR_TRACKING' ? 'Clear' : 'Fix';
+                           action === 'CLEAR_TRACKING' ? 'Clear' :
+                           action === 'CLEAR_INSECURE' ? 'Clear' : 'Fix';
+
+        // Generate unique ID for this item's details section
+        const itemId = `risk-details-${item.type || Math.random().toString(36).substr(2, 9)}`;
+
+        // Format individual items for expandable details - matching dashboard style
+        const detailsHtml = item.items && item.items.length > 0 ? `
+          <details class="risk-details-accordion">
+            <summary class="risk-details-summary">View ${item.items.length} detected item${item.items.length !== 1 ? 's' : ''}</summary>
+            <div class="risk-details-body">
+              ${item.items.slice(0, 10).map(detail => {
+                // Handle different item structures
+                const name = detail.name || detail.domain || detail.key || 'Unknown';
+                const domain = detail.domain || '';
+                const size = detail.size ? formatBytes(detail.size) : '';
+
+                return `<div class="risk-detail-row">
+                  <span class="detail-name" title="${name}">${name}</span>
+                  ${domain && domain !== name ? `<span class="detail-domain">${domain}</span>` : ''}
+                  ${size ? `<span class="detail-size">${size}</span>` : ''}
+                </div>`;
+              }).join('')}
+              ${item.items.length > 10 ? `<div class="risk-detail-more">...and ${item.items.length - 10} more</div>` : ''}
+            </div>
+          </details>
+        ` : '';
 
         return `
           <div class="high-risk-item ${severityClass}">
@@ -265,11 +317,7 @@ function displayDetailedAnalysis(analysis) {
               ${action ? `<button class="high-risk-action-btn" data-action="${action}">${actionLabel}</button>` : ''}
             </div>
             <p class="risk-description">${item.description}</p>
-            ${item.items && item.items.length > 0 ? `
-              <div class="risk-items-summary">
-                ${item.items.length} item${item.items.length !== 1 ? 's' : ''} detected
-              </div>
-            ` : ''}
+            ${detailsHtml}
           </div>
         `;
       })
@@ -362,7 +410,8 @@ async function handleHighRiskAction(event) {
   const confirmMap = {
     'CLEAR_FINGERPRINTING': 'Remove all fingerprinting trackers? This cannot be undone.',
     'CLEAR_TRACKING': 'Clear all cross-site tracking cookies? This cannot be undone.',
-    'CLEAR_LOCALSTORAGE': 'Clear excessive localStorage data? This cannot be undone.'
+    'CLEAR_LOCALSTORAGE': 'Clear excessive localStorage data? This cannot be undone.',
+    'CLEAR_INSECURE': 'Clear insecure cookies on sensitive domains? This cannot be undone.'
   };
 
   const confirmMsg = confirmMap[action];

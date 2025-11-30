@@ -3,6 +3,60 @@
  * Runs on every web page to monitor storage usage with batching and pagination
  */
 
+// Global error handler to suppress "Extension context invalidated" errors
+// This error is expected when the extension is reloaded while the page is still open
+window.addEventListener('error', (event) => {
+  if (event.message && event.message.includes('Extension context invalidated')) {
+    event.preventDefault();
+    event.stopPropagation();
+    console.warn('⚠️ Extension was reloaded. Please refresh the page to reconnect.');
+    return true;
+  }
+}, true);
+
+// Also handle unhandled promise rejections
+window.addEventListener('unhandledrejection', (event) => {
+  if (event.reason && event.reason.message && event.reason.message.includes('Extension context invalidated')) {
+    event.preventDefault();
+    console.warn('⚠️ Extension was reloaded. Please refresh the page to reconnect.');
+  }
+});
+
+// ============================================================================
+// EXTENSION DISCONNECT DETECTION
+// ============================================================================
+
+// Flag to track if extension has been disconnected/unloaded
+let extensionDisconnected = false;
+
+/**
+ * Setup port-based disconnect detection
+ * When the extension is reloaded/disabled, the port disconnects and we stop all operations
+ */
+function setupDisconnectDetection() {
+  try {
+    // Create a long-lived connection to the background script
+    const port = chrome.runtime.connect({ name: 'content-script-keepalive' });
+
+    port.onDisconnect.addListener(() => {
+      extensionDisconnected = true;
+      console.warn('⚠️ Extension disconnected. Please refresh the page to reconnect.');
+
+      // Cancel any pending debounced/throttled operations (if they exist)
+      if (typeof debouncedNotifyBatch !== 'undefined' && debouncedNotifyBatch?.cancel) {
+        debouncedNotifyBatch.cancel();
+      }
+    });
+  } catch (error) {
+    // If we can't connect, the extension is already disconnected
+    extensionDisconnected = true;
+    console.warn('⚠️ Could not connect to extension:', error.message);
+  }
+}
+
+// Setup disconnect detection immediately (uses try-catch internally for safety)
+setupDisconnectDetection();
+
 console.log('🔍 StorageInsight content script loaded');
 
 // ============================================================================
@@ -80,10 +134,20 @@ function throttle(func, limit) {
  * Returns false if the extension was reloaded/disabled
  */
 function isExtensionContextValid() {
+  // Check disconnect flag first (fastest check)
+  if (extensionDisconnected) {
+    return false;
+  }
+
   try {
     // Accessing chrome.runtime.id will throw if context is invalidated
-    return !!chrome.runtime?.id;
+    const valid = !!chrome.runtime?.id;
+    if (!valid) {
+      extensionDisconnected = true;
+    }
+    return valid;
   } catch (e) {
+    extensionDisconnected = true;
     return false;
   }
 }
@@ -220,7 +284,8 @@ let batchSequence = 0;
  * Performance benefit: Reduces message frequency from N messages to 1 message per second
  */
 const debouncedNotifyBatch = debounce(() => {
-  if (changeBatch.length === 0) return;
+  // Exit early if extension is disconnected
+  if (extensionDisconnected || changeBatch.length === 0) return;
 
   const batchToSend = [...changeBatch];
   const batchCount = batchToSend.length;
@@ -586,6 +651,9 @@ function notifyStorageChange(storageType, action, key, value) {
  * Performance: Ensures critical operations are notified within reasonable time
  */
 const throttledCriticalNotify = throttle((storageType, action) => {
+  // Exit early if extension is disconnected
+  if (extensionDisconnected) return;
+
   safeSendMessage({
     type: 'STORAGE_CRITICAL_CHANGE',
     data: {
@@ -732,62 +800,94 @@ function getStorageInfo(options = {}) {
 }
 
 /**
- * Listen for messages from background script
+ * Safe response wrapper to handle context invalidation
  */
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  console.log('📨 Content script received message:', message.type);
-
-  switch (message.type) {
-    case 'GET_STORAGE_INFO':
-      // Support pagination options from background
-      const options = message.options || {};
-      sendResponse({ success: true, data: getStorageInfo(options) });
-      return true;
-
-    case 'GET_STORAGE_PAGE':
-      // Get specific page of storage data
-      const { storageType, offset = 0, limit = 100 } = message;
-      const pageData = getStoragePaginated(storageType, offset, limit);
-      sendResponse({ success: true, data: pageData });
-      return true;
-
-    case 'GET_INDEXEDDB_PAGE':
-      // Async operation for IndexedDB pagination
-      const { dbName, storeName, options: dbOptions } = message;
-      getIndexedDBLazy(dbName, storeName, dbOptions)
-        .then(data => sendResponse({ success: true, data }))
-        .catch(error => sendResponse({ success: false, error: error.message }));
-      return true; // Keep message channel open for async response
-
-    case 'CLEAR_LOCAL_STORAGE':
-      try {
-        localStorage.clear();
-        sendResponse({ success: true });
-      } catch (error) {
-        sendResponse({ success: false, error: error.message });
-      }
-      return true;
-
-    case 'CLEAR_SESSION_STORAGE':
-      try {
-        sessionStorage.clear();
-        sendResponse({ success: true });
-      } catch (error) {
-        sendResponse({ success: false, error: error.message });
-      }
-      return true;
-
-    case 'FLUSH_BATCH':
-      // Force send any pending batch
-      debouncedNotifyBatch.flush();
-      sendResponse({ success: true, batchSize: changeBatch.length });
-      return true;
-
-    default:
-      sendResponse({ success: false, error: 'Unknown message type' });
-      return true;
+function safeSendResponse(sendResponse, data) {
+  if (!isExtensionContextValid()) {
+    console.warn('⚠️ Cannot send response - extension context invalidated');
+    return;
   }
-});
+  try {
+    sendResponse(data);
+  } catch (error) {
+    console.warn('⚠️ Failed to send response:', error.message);
+  }
+}
+
+/**
+ * Listen for messages from background script
+ * Wrapped in try-catch to handle extension context invalidation gracefully
+ */
+try {
+  chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    // Check if extension context is still valid
+    if (!isExtensionContextValid()) {
+      console.warn('⚠️ Received message but extension context is invalidated. Please refresh the page.');
+      return false;
+    }
+
+    console.log('📨 Content script received message:', message.type);
+
+    try {
+      switch (message.type) {
+        case 'GET_STORAGE_INFO':
+          // Support pagination options from background
+          const options = message.options || {};
+          safeSendResponse(sendResponse, { success: true, data: getStorageInfo(options) });
+          return true;
+
+        case 'GET_STORAGE_PAGE':
+          // Get specific page of storage data
+          const { storageType, offset = 0, limit = 100 } = message;
+          const pageData = getStoragePaginated(storageType, offset, limit);
+          safeSendResponse(sendResponse, { success: true, data: pageData });
+          return true;
+
+        case 'GET_INDEXEDDB_PAGE':
+          // Async operation for IndexedDB pagination
+          const { dbName, storeName, options: dbOptions } = message;
+          getIndexedDBLazy(dbName, storeName, dbOptions)
+            .then(data => safeSendResponse(sendResponse, { success: true, data }))
+            .catch(error => safeSendResponse(sendResponse, { success: false, error: error.message }));
+          return true; // Keep message channel open for async response
+
+        case 'CLEAR_LOCAL_STORAGE':
+          try {
+            localStorage.clear();
+            safeSendResponse(sendResponse, { success: true });
+          } catch (error) {
+            safeSendResponse(sendResponse, { success: false, error: error.message });
+          }
+          return true;
+
+        case 'CLEAR_SESSION_STORAGE':
+          try {
+            sessionStorage.clear();
+            safeSendResponse(sendResponse, { success: true });
+          } catch (error) {
+            safeSendResponse(sendResponse, { success: false, error: error.message });
+          }
+          return true;
+
+        case 'FLUSH_BATCH':
+          // Force send any pending batch
+          debouncedNotifyBatch.flush();
+          safeSendResponse(sendResponse, { success: true, batchSize: changeBatch.length });
+          return true;
+
+        default:
+          safeSendResponse(sendResponse, { success: false, error: 'Unknown message type' });
+          return true;
+      }
+    } catch (error) {
+      console.warn('⚠️ Error handling message:', error.message);
+      safeSendResponse(sendResponse, { success: false, error: error.message });
+      return true;
+    }
+  });
+} catch (error) {
+  console.warn('⚠️ Extension context invalidated. Please refresh the page to reconnect.');
+}
 
 /**
  * Send initial page load info
@@ -834,6 +934,11 @@ window.addEventListener('message', (event) => {
   // Only accept messages from the same origin (localhost:3000)
   if (event.origin !== window.location.origin) {
     return;
+  }
+
+  // Check if extension context is still valid before processing
+  if (!isExtensionContextValid()) {
+    return; // Silently ignore - extension was reloaded
   }
 
   // Check if it's from our web app (support both source names for compatibility)
@@ -911,18 +1016,31 @@ window.addEventListener('pagehide', cleanup);
 // Announce extension presence to the web app
 // This helps the dashboard detect the extension is installed
 function announceExtension() {
-  window.postMessage({
-    source: 'storageinsight-extension',
-    type: 'EXTENSION_READY',
-    version: '1.0.0',
-  }, window.location.origin);
-  console.log('📢 Extension announced to web app at', window.location.origin);
+  // Check if extension context is still valid before announcing
+  if (!isExtensionContextValid()) {
+    return; // Extension was reloaded, stop announcing
+  }
+
+  try {
+    window.postMessage({
+      source: 'storageinsight-extension',
+      type: 'EXTENSION_READY',
+      version: '1.0.0',
+    }, window.location.origin);
+    console.log('📢 Extension announced to web app at', window.location.origin);
+  } catch (error) {
+    console.warn('⚠️ Failed to announce extension:', error.message);
+  }
 }
 
 // Announce immediately and also after a short delay (in case page JS loads later)
 announceExtension();
-setTimeout(announceExtension, 1000);
-setTimeout(announceExtension, 3000);
+setTimeout(() => {
+  if (isExtensionContextValid()) announceExtension();
+}, 1000);
+setTimeout(() => {
+  if (isExtensionContextValid()) announceExtension();
+}, 3000);
 
 console.log('✅ StorageInsight content script initialized with performance optimizations');
 console.log('📊 Performance features: Batching (1msg/sec), Pagination (100 items/page), Efficient serialization (<10ms)');

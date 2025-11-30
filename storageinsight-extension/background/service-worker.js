@@ -314,6 +314,10 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       handleClearLocalStorage(sendResponse);
       return true;
 
+    case 'CLEAR_INSECURE':
+      handleClearInsecure(sendResponse);
+      return true;
+
     // Statistics and activity
     case 'get-stats':
       handleGetStats(sendResponse);
@@ -827,6 +831,59 @@ async function handleClearLocalStorage(sendResponse) {
     sendResponse({ success: true, data: { removedCount: 1 } });
   } catch (error) {
     logError(error, 'handleClearLocalStorage');
+    sendResponse({ success: false, error: error.message });
+  }
+}
+
+async function handleClearInsecure(sendResponse) {
+  try {
+    console.log('🗑️ Clearing insecure cookies on sensitive domains...');
+
+    await loadState();
+    const cookies = await chrome.cookies.getAll({});
+    let removedCount = 0;
+
+    // Sensitive domain keywords
+    const sensitiveDomains = ['bank', 'paypal', 'stripe', 'auth', 'login', 'account', 'payment', 'secure', 'checkout'];
+
+    for (const cookie of cookies) {
+      // Skip whitelisted domains
+      if (whitelist.includes(cookie.domain)) {
+        continue;
+      }
+
+      const domain = cookie.domain.toLowerCase();
+      const isSensitive = sensitiveDomains.some(keyword => domain.includes(keyword));
+
+      // Remove cookies on sensitive domains that don't have the secure flag
+      if (isSensitive && !cookie.secure) {
+        // Try both HTTP and HTTPS URLs to ensure deletion works
+        // Cookies may have been set on either protocol
+        const cleanDomain = cookie.domain.startsWith('.') ? cookie.domain.slice(1) : cookie.domain;
+        const httpUrl = `http://${cleanDomain}${cookie.path}`;
+        const httpsUrl = `https://${cleanDomain}${cookie.path}`;
+
+        try {
+          await chrome.cookies.remove({ url: httpUrl, name: cookie.name });
+        } catch (e) {
+          // Try HTTPS if HTTP fails
+          await chrome.cookies.remove({ url: httpsUrl, name: cookie.name });
+        }
+
+        removedCount++;
+        console.log(`  Removed insecure cookie: ${cookie.name} on ${cookie.domain}`);
+      }
+    }
+
+    await addActivity({
+      type: 'insecure-cookies-cleared',
+      count: removedCount,
+    });
+
+    console.log(`✅ Cleared ${removedCount} insecure cookies on sensitive domains`);
+    sendResponse({ success: true, data: { removedCount } });
+  } catch (error) {
+    logError(error, 'handleClearInsecure');
     sendResponse({ success: false, error: error.message });
   }
 }

@@ -22,6 +22,8 @@ import {
   HardDrive,
   GitCompare,
   LayoutDashboard,
+  BookOpen,
+  Lightbulb,
 } from 'lucide-react';
 import {
   PieChart,
@@ -44,9 +46,10 @@ import HistoricalTrends from '@/components/HistoricalTrends';
 import StorageDetails from '@/components/StorageDetails';
 import ControlPanel from '@/components/ControlPanel';
 import ComparisonView from '@/components/ComparisonView';
+import LearnPrivacy from '@/components/LearnPrivacy';
 
 // Tab definitions
-type TabId = 'overview' | 'domains' | 'cookies' | 'trackers' | 'history' | 'storage' | 'settings' | 'compare';
+type TabId = 'overview' | 'domains' | 'cookies' | 'trackers' | 'history' | 'storage' | 'settings' | 'compare' | 'learn';
 
 interface Tab {
   id: TabId;
@@ -62,6 +65,7 @@ const tabs: Tab[] = [
   { id: 'history', label: 'History', icon: <History className="h-4 w-4" /> },
   { id: 'storage', label: 'Storage', icon: <HardDrive className="h-4 w-4" /> },
   { id: 'compare', label: 'Compare', icon: <GitCompare className="h-4 w-4" /> },
+  { id: 'learn', label: 'Learn', icon: <BookOpen className="h-4 w-4" /> },
   { id: 'settings', label: 'Settings', icon: <Settings className="h-4 w-4" /> },
 ];
 
@@ -232,6 +236,61 @@ export default function Home() {
         privacyScore: privacyScore,
       });
       setHasScanned(true);
+
+      // Refresh historical scans from IndexedDB after new scan data arrives
+      const refreshHistoricalScans = async () => {
+        try {
+          const scans = await storageDB.getAllScans();
+          const formattedScans: ScanSnapshot[] = scans.map((scan: any) => {
+            const breakdown = scan.data?._privacyAnalysis?.breakdown?.byCategory ||
+                             scan.data?._privacyAnalysis?.breakdown || {
+              analytics: 0,
+              advertising: 0,
+              social: 0,
+              fingerprinting: 0,
+              essential: 0,
+              unknown: 0,
+            };
+
+            const scanTrackingCookies = (breakdown.Analytics || breakdown.analytics || 0) +
+                                        (breakdown.Advertising || breakdown.advertising || 0) +
+                                        (breakdown.Social || breakdown.social || 0) +
+                                        (breakdown.Fingerprinting || breakdown.fingerprinting || 0);
+
+            const extractNumericScore = (ps: any): number => {
+              if (typeof ps === 'number') return ps;
+              if (typeof ps === 'object' && ps !== null) return ps.score || 0;
+              return 0;
+            };
+
+            const rawScore = scan.privacyScore || scan.data?.privacyScore || scan.data?._privacyAnalysis?.privacyScore;
+
+            return {
+              id: scan.timestamp.toString(),
+              timestamp: scan.timestamp,
+              privacyScore: extractNumericScore(rawScore),
+              totalCookies: scan.summary?.totalCookies || scan.data?.totalCookies || 0,
+              trackingCookies: scanTrackingCookies,
+              uniqueDomains: scan.summary?.uniqueDomains || scan.data?.uniqueDomains || 0,
+              totalStorageMB: parseFloat(scan.summary?.totalStorageMB || scan.data?.totalStorageMB || '0'),
+              breakdown: {
+                analytics: breakdown.Analytics || breakdown.analytics || 0,
+                advertising: breakdown.Advertising || breakdown.advertising || 0,
+                social: breakdown.Social || breakdown.social || 0,
+                fingerprinting: breakdown.Fingerprinting || breakdown.fingerprinting || 0,
+                essential: breakdown.Essential || breakdown.essential || 0,
+                unknown: breakdown.Unknown || breakdown.unknown || 0,
+              },
+            };
+          });
+          setHistoricalScans(formattedScans);
+          console.log('📊 Refreshed historical scans:', formattedScans.length);
+        } catch (error) {
+          console.error('Error refreshing historical scans:', error);
+        }
+      };
+
+      refreshHistoricalScans();
     }
   }, [extensionData]);
 
@@ -301,6 +360,7 @@ export default function Home() {
       'CLEAR_ANALYTICS': 'Clear all analytics cookies?',
       'CLEAR_LONG_LIVED': 'Clear long-lived tracking cookies?',
       'CLEAR_LOCALSTORAGE': 'Clear excessive localStorage data?',
+      'CLEAR_INSECURE': 'Clear insecure cookies on sensitive domains?',
     };
 
     const confirmMsg = actionMessages[action.toUpperCase()] || 'Perform this action?';
@@ -631,7 +691,7 @@ export default function Home() {
       </div>
 
       {/* Privacy Analysis */}
-      {privacyAnalysis && (privacyAnalysis.recommendations?.length > 0 || privacyAnalysis.highRiskItems?.length > 0) && (
+      {privacyAnalysis && (
         <div className="mb-8 grid grid-cols-1 gap-6 lg:grid-cols-2">
           {privacyAnalysis.recommendations?.length > 0 && (
             <div className="rounded-3xl bg-white/95 p-6 shadow-lg backdrop-blur-sm">
@@ -669,18 +729,20 @@ export default function Home() {
             </div>
           )}
 
-          {privacyAnalysis.highRiskItems?.length > 0 && (
-            <div className="rounded-3xl bg-white/95 p-6 shadow-lg backdrop-blur-sm">
-              <div className="mb-4 flex items-center gap-2">
-                <AlertCircle className="h-5 w-5 text-red-600" />
-                <h2 className="text-xl font-bold text-gray-800">High Risk Items</h2>
-              </div>
+          {/* High Risk Items - Always show this section */}
+          <div className="rounded-3xl bg-white/95 p-6 shadow-lg backdrop-blur-sm">
+            <div className="mb-4 flex items-center gap-2">
+              <AlertCircle className={`h-5 w-5 ${privacyAnalysis.highRiskItems?.length > 0 ? 'text-red-600' : 'text-green-600'}`} />
+              <h2 className="text-xl font-bold text-gray-800">High Risk Items</h2>
+            </div>
+            {privacyAnalysis.highRiskItems?.length > 0 ? (
               <div className="space-y-3">
                 {privacyAnalysis.highRiskItems.map((item: any, index: number) => {
                   const actionMap: { [key: string]: string } = {
                     'fingerprinting': 'CLEAR_FINGERPRINTING',
                     'cross_site_tracking': 'CLEAR_TRACKING',
                     'large_storage': 'CLEAR_LOCALSTORAGE',
+                    'insecure_sensitive': 'CLEAR_INSECURE',
                   };
                   const action = actionMap[item.type];
 
@@ -742,8 +804,15 @@ export default function Home() {
                   );
                 })}
               </div>
-            </div>
-          )}
+            ) : (
+              <div className="flex items-center justify-center rounded-xl bg-green-50 p-6">
+                <div className="flex items-center gap-3">
+                  <CheckCircle className="h-6 w-6 text-green-600" />
+                  <span className="text-lg font-medium text-green-700">No high-risk items detected</span>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       )}
 
@@ -824,6 +893,32 @@ export default function Home() {
           </div>
         </div>
       </div>
+
+      {/* Learn About Privacy Card */}
+      <div className="mt-6 rounded-3xl bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 p-1 shadow-lg">
+        <div className="rounded-[22px] bg-white/95 p-6 backdrop-blur-sm">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <div className="rounded-2xl bg-gradient-to-br from-purple-100 to-indigo-100 p-4">
+                <Lightbulb className="h-8 w-8 text-purple-600" />
+              </div>
+              <div>
+                <h3 className="text-xl font-bold text-gray-800">New to Online Privacy?</h3>
+                <p className="text-gray-600">
+                  Learn how cookies work and why companies track you across the web
+                </p>
+              </div>
+            </div>
+            <button
+              onClick={() => setActiveTab('learn')}
+              className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 px-6 py-3 font-semibold text-white shadow-lg transition-all hover:scale-105 hover:shadow-xl"
+            >
+              <BookOpen className="h-5 w-5" />
+              <span>Learn More</span>
+            </button>
+          </div>
+        </div>
+      </div>
     </>
   );
 
@@ -873,10 +968,10 @@ export default function Home() {
 
         {/* Tab Navigation */}
         <div className="mb-6 rounded-2xl bg-white/95 p-3 shadow-lg backdrop-blur-sm">
-          <div className="mb-2 px-2 text-xs font-medium text-gray-500 uppercase tracking-wide">
+          <div className="mb-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wide">
             Navigate to:
           </div>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap justify-center gap-2">
             {tabs.map((tab) => (
               <button
                 key={tab.id}
@@ -976,6 +1071,10 @@ export default function Home() {
               onExportSettings={handleExportSettings}
               onImportSettings={handleImportSettings}
             />
+          )}
+
+          {activeTab === 'learn' && (
+            <LearnPrivacy />
           )}
         </div>
 

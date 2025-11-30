@@ -395,6 +395,13 @@ body {
   color: #8b5cf6;
 }
 
+/* High Risk Items - red alert icon */
+.high-risk-title svg.alert-icon {
+  width: 16px;
+  height: 16px;
+  color: #dc2626;
+}
+
 .analysis-badge {
   display: inline-flex;
   align-items: center;
@@ -456,37 +463,65 @@ body {
   gap: 6px;
 }
 
+/* Recommendation item - horizontal layout with badge + content */
 .recommendation-item {
   display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 10px;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 12px;
   background: #f8fafc;
   border-radius: 8px;
   border-left: 3px solid #8b5cf6;
-  font-size: 12px;
 }
 
-.recommendation-number {
+/* Circular numbered badge */
+.recommendation-badge {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 18px;
-  height: 18px;
+  width: 22px;
+  height: 22px;
+  min-width: 22px;
   background: #8b5cf6;
   color: white;
   border-radius: 50%;
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 700;
   flex-shrink: 0;
 }
 
-.recommendation-text {
+/* Content area - vertical stack */
+.recommendation-content {
   flex: 1;
-  font-size: 12px;
-  color: #374151;
-  line-height: 1.3;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
   min-width: 0;
+}
+
+/* Header row with title and action button */
+.recommendation-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+/* Title text - bold */
+.recommendation-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: #1f2937;
+  line-height: 1.3;
+}
+
+/* Description - below title, lighter color */
+.recommendation-desc {
+  margin: 0;
+  font-size: 11px;
+  color: #6b7280;
+  line-height: 1.4;
 }
 
 .recommendation-action-btn {
@@ -516,6 +551,74 @@ body {
   background: #9ca3af;
   cursor: not-allowed;
   transform: none;
+}
+
+/* Recommendation expandable details - using native <details> */
+.rec-details-accordion {
+  margin-top: 6px;
+}
+
+.rec-details-summary {
+  cursor: pointer;
+  user-select: none;
+  outline: none;
+  font-size: 10px;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+/* Hide ALL native disclosure markers */
+.rec-details-summary {
+  list-style: none;
+}
+.rec-details-summary::-webkit-details-marker {
+  display: none;
+}
+
+/* Add arrow via CSS ::before - guarantees single arrow */
+.rec-details-summary::before {
+  content: '▶';
+  display: inline-block;
+  font-size: 8px;
+  color: #9ca3af;
+  margin-right: 6px;
+  transition: transform 0.2s;
+}
+
+.rec-details-accordion[open] > .rec-details-summary::before {
+  transform: rotate(90deg);
+}
+
+.rec-details-summary:hover {
+  color: #374151;
+}
+
+.rec-details-body {
+  margin-top: 6px;
+  padding: 6px;
+  background: rgba(139, 92, 246, 0.05);
+  border-radius: 6px;
+  max-height: 120px;
+  overflow-y: auto;
+}
+
+.rec-detail-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 6px;
+  margin: 2px 0;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 4px;
+  font-size: 9px;
+  border-left: 2px solid #c4b5fd;
+}
+
+.rec-detail-more {
+  padding: 3px 6px;
+  font-size: 9px;
+  color: #9ca3af;
+  font-style: italic;
 }
 
 /* ============================================
@@ -615,10 +718,112 @@ body {
   line-height: 1.3;
 }
 
-.risk-items-summary {
-  font-size: 10px;
-  color: #9ca3af;
+/* ============================================
+   EXPANDABLE DETAILS - Using native <details>
+   ============================================ */
+
+/* High Risk Items - Expandable details */
+.risk-details-accordion {
+  margin-top: 8px;
+}
+
+.risk-details-summary {
+  cursor: pointer;
+  user-select: none;
+  outline: none;
+  font-size: 11px;
+  color: #6b7280;
   font-weight: 500;
+}
+
+/* Hide ALL native disclosure markers */
+.risk-details-summary {
+  list-style: none;
+}
+.risk-details-summary::-webkit-details-marker {
+  display: none;
+}
+
+/* Add arrow via CSS ::before - guarantees single arrow */
+.risk-details-summary::before {
+  content: '▶';
+  display: inline-block;
+  font-size: 8px;
+  color: #9ca3af;
+  margin-right: 6px;
+  transition: transform 0.2s;
+}
+
+.risk-details-accordion[open] > .risk-details-summary::before {
+  transform: rotate(90deg);
+}
+
+.risk-details-summary:hover {
+  color: #374151;
+}
+
+.risk-details-body {
+  margin-top: 8px;
+  padding: 8px;
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: 6px;
+  max-height: 150px;
+  overflow-y: auto;
+}
+
+.risk-detail-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 6px;
+  margin: 2px 0;
+  background: white;
+  border-radius: 4px;
+  font-size: 10px;
+  border-left: 2px solid #d1d5db;
+}
+
+.high-risk-item.critical .risk-detail-row {
+  border-left-color: #fca5a5;
+}
+
+.high-risk-item.medium .risk-detail-row {
+  border-left-color: #fcd34d;
+}
+
+.detail-name {
+  flex: 1;
+  font-weight: 500;
+  color: #374151;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+
+.detail-domain {
+  font-size: 9px;
+  color: #9ca3af;
+  background: #f3f4f6;
+  padding: 1px 4px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+.detail-size {
+  font-size: 9px;
+  color: #6b7280;
+  background: #e5e7eb;
+  padding: 1px 4px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+.risk-detail-more {
+  padding: 4px 6px;
+  font-size: 9px;
+  color: #9ca3af;
+  font-style: italic;
 }
 
 /* No Data Message */
