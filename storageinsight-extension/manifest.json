@@ -15,7 +15,8 @@
     "contextMenus",
     "notifications",
     "declarativeNetRequest",
-    "declarativeNetRequestWithHostAccess"
+    "declarativeNetRequestWithHostAccess",
+    "browsingData"
   ],
 
   "host_permissions": [

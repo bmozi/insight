@@ -815,9 +815,18 @@ async function handleClearLocalStorage(sendResponse) {
   try {
     console.log('🗑️ Clearing excessive localStorage...');
 
-    // Note: We can't directly clear localStorage from the service worker
-    // We can only suggest clearing it or use the browsingData API
-    const result = await chrome.browsingData.remove(
+    // Check if browsingData API is available (requires browsingData permission)
+    if (!chrome.browsingData || typeof chrome.browsingData.remove !== 'function') {
+      console.warn('⚠️ browsingData API not available - permission may be missing');
+      sendResponse({
+        success: false,
+        error: 'LocalStorage clearing requires extension reload. Please reload the extension from chrome://extensions.'
+      });
+      return;
+    }
+
+    // Use browsingData API to clear localStorage
+    await chrome.browsingData.remove(
       {},
       { localStorage: true }
     );

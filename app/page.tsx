@@ -349,32 +349,26 @@ export default function Home() {
   };
 
   const handleRecommendationAction = async (action: string) => {
-    if (!isConnected) {
-      alert('Extension not connected. Please install and enable the StorageInsight extension.');
-      return;
-    }
-
-    const actionMessages: { [key: string]: string } = {
-      'CLEAR_ADVERTISING': 'Clear all advertising cookies?',
-      'CLEAR_FINGERPRINTING': 'Remove all fingerprinting trackers?',
-      'CLEAR_TRACKING': 'Clear all cross-site tracking cookies?',
-      'CLEAR_ANALYTICS': 'Clear all analytics cookies?',
-      'CLEAR_LONG_LIVED': 'Clear long-lived tracking cookies?',
-      'CLEAR_LOCALSTORAGE': 'Clear excessive localStorage data?',
-      'CLEAR_INSECURE': 'Clear insecure cookies on sensitive domains?',
+    // Direct users to use the extension popup for reliable action execution
+    const actionDescriptions: { [key: string]: string } = {
+      'CLEAR_ADVERTISING': 'clear advertising cookies',
+      'CLEAR_FINGERPRINTING': 'remove fingerprinting trackers',
+      'CLEAR_TRACKING': 'clear cross-site tracking cookies',
+      'CLEAR_ANALYTICS': 'clear analytics cookies',
+      'CLEAR_LONG_LIVED': 'clear long-lived cookies',
+      'CLEAR_LOCALSTORAGE': 'clear localStorage data',
+      'CLEAR_INSECURE': 'clear insecure cookies',
     };
 
-    const confirmMsg = actionMessages[action.toUpperCase()] || 'Perform this action?';
-    if (!confirm(confirmMsg + ' This cannot be undone.')) return;
+    const actionDesc = actionDescriptions[action.toUpperCase()] || 'perform this action';
 
-    window.postMessage({
-      source: 'storageinsight-webapp',
-      type: 'EXECUTE_ACTION',
-      action: action.toUpperCase(),
-    }, window.location.origin);
-
-    alert('Action sent to extension.');
-    setTimeout(() => refresh(), 2000);
+    alert(
+      `To ${actionDesc}:\n\n` +
+      `1. Click the Insight extension icon in your browser toolbar\n` +
+      `2. Find this item in the High Risk section\n` +
+      `3. Click the "Clear" or "Remove" button\n\n` +
+      `The extension popup provides reliable cookie management.`
+    );
   };
 
   const handleClearAllTracking = async () => {
