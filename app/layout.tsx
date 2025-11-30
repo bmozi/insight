@@ -18,9 +18,9 @@ export const metadata: Metadata = {
   title: "Insight",
   description: "Take Control of Your Data",
   icons: {
-    icon: '/icon.svg',
+    icon: '/icon.png',
     shortcut: '/favicon.ico',
-    apple: '/icon.svg',
+    apple: '/icon.png',
   },
 };
 
