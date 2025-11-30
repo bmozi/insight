@@ -1,0 +1,19 @@
+<svg width="128" height="128" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Purple gradient background circle -->
+  <circle cx="64" cy="64" r="64" fill="url(#gradient)"/>
+
+  <!-- Shield icon -->
+  <path d="M64 24C64 24 44 32 44 40C44 52 44 64 44 72C44 88 64 104 64 104C64 104 84 88 84 72C84 64 84 52 84 40C84 32 64 24 64 24Z"
+        fill="white" stroke="white" stroke-width="2" stroke-linejoin="round"/>
+
+  <!-- Check mark inside shield -->
+  <path d="M56 64L62 70L72 56" stroke="#8b5cf6" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Gradient definition -->
+  <defs>
+    <linearGradient id="gradient" x1="0" y1="0" x2="128" y2="128" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#8b5cf6"/>
+      <stop offset="100%" stop-color="#3b82f6"/>
+    </linearGradient>
+  </defs>
+</svg>

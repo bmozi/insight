@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>StorageInsight - Storage Explorer</title>
+  <link rel="stylesheet" href="options-prompt5.css">
+  <!-- Chart.js for data visualization -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+  <div class="app-container">
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="logo">
+          <svg class="logo-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+          </svg>
+          <div>
+            <div class="logo-title">StorageInsight</div>
+            <div class="logo-subtitle">Storage Explorer</div>
+          </div>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <button class="nav-item active" data-tab="dashboard">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="7" height="7"></rect>
+            <rect x="14" y="3" width="7" height="7"></rect>
+            <rect x="14" y="14" width="7" height="7"></rect>
+            <rect x="3" y="14" width="7" height="7"></rect>
+          </svg>
+          <span>Dashboard</span>
+        </button>
+
+        <button class="nav-item" data-tab="cookies">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <circle cx="12" cy="12" r="3"></circle>
+            <circle cx="7" cy="8" r="1"></circle>
+            <circle cx="17" cy="8" r="1"></circle>
+            <circle cx="7" cy="16" r="1"></circle>
+            <circle cx="17" cy="16" r="1"></circle>
+          </svg>
+          <span>Cookies</span>
+          <span class="badge" id="cookiesBadge">0</span>
+        </button>
+
+        <button class="nav-item" data-tab="localStorage">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+          </svg>
+          <span>Local Storage</span>
+        </button>
+
+        <button class="nav-item" data-tab="sessionStorage">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+            <path d="M16 3h-8a2 2 0 0 0-2 2v2h12V5a2 2 0 0 0-2-2z"></path>
+          </svg>
+          <span>Session Storage</span>
+        </button>
+
+        <button class="nav-item" data-tab="indexedDB">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <ellipse cx="12" cy="5" rx="9" ry="3"></ellipse>
+            <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path>
+          </svg>
+          <span>IndexedDB</span>
+        </button>
+
+        <button class="nav-item" data-tab="privacy">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+            <path d="M9 12l2 2 4-4"></path>
+          </svg>
+          <span>Privacy Report</span>
+        </button>
+
+        <button class="nav-item" data-tab="whitelist">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <path d="M9 12l2 2 4-4"></path>
+          </svg>
+          <span>Whitelist</span>
+        </button>
+
+        <button class="nav-item" data-tab="settings">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M12 1v6m0 6v6m5.7-13.7l-4.2 4.2m0 6.3l4.2 4.2M23 12h-6m-6 0H5m13.7 5.7l-4.2-4.2m0-6.3l-4.2-4.2"></path>
+          </svg>
+          <span>Settings</span>
+        </button>
+
+        <button class="nav-item" data-tab="about">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="16" x2="12" y2="12"></line>
+            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+          </svg>
+          <span>About</span>
+        </button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="storage-usage">
+          <div class="usage-label">Total Storage</div>
+          <div class="usage-value" id="totalStorageUsage">0 MB</div>
+          <div class="usage-bar">
+            <div class="usage-fill" id="usageFill" style="width: 0%"></div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      <!-- Dashboard Tab -->
+      <div class="tab-content active" id="tab-dashboard">
+        <header class="content-header">
+          <div>
+            <h1>Dashboard</h1>
+            <p class="content-subtitle">Overview of your browser storage and privacy</p>
+          </div>
+          <button class="btn-primary" id="refreshDashboard">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+              <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"></path>
+            </svg>
+            Refresh Data
+          </button>
+        </header>
+
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon purple">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+              </svg>
+            </div>
+            <div class="stat-content">
+              <div class="stat-value" id="dashTotalCookies">—</div>
+              <div class="stat-label">Total Cookies</div>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon red">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <circle cx="12" cy="12" r="6"></circle>
+                <circle cx="12" cy="12" r="2"></circle>
+              </svg>
+            </div>
+            <div class="stat-content">
+              <div class="stat-value" id="dashTrackers">—</div>
+              <div class="stat-label">Trackers Detected</div>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon blue">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <ellipse cx="12" cy="5" rx="9" ry="3"></ellipse>
+                <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path>
+              </svg>
+            </div>
+            <div class="stat-content">
+              <div class="stat-value" id="dashStorage">—</div>
+              <div class="stat-label">Storage Used</div>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon green">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+              </svg>
+            </div>
+            <div class="stat-content">
+              <div class="stat-value" id="dashPrivacyScore">—</div>
+              <div class="stat-label">Privacy Score</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Charts Row -->
+        <div class="charts-grid">
+          <div class="chart-card">
+            <h3 class="chart-title">Storage by Category</h3>
+            <canvas id="storageByCategory"></canvas>
+          </div>
+
+          <div class="chart-card">
+            <h3 class="chart-title">Top 10 Domains by Storage</h3>
+            <canvas id="topDomains"></canvas>
+          </div>
+        </div>
+
+        <!-- Privacy Score Breakdown -->
+        <div class="section-card">
+          <h3 class="section-title">Privacy Score Breakdown</h3>
+          <div id="privacyBreakdown" class="privacy-breakdown">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+
+        <!-- Recommendations -->
+        <div class="section-card">
+          <h3 class="section-title">Recommendations</h3>
+          <div id="recommendationsList" class="recommendations-list">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Cookies Tab -->
+      <div class="tab-content" id="tab-cookies">
+        <header class="content-header">
+          <div>
+            <h1>Cookies</h1>
+            <p class="content-subtitle">View and manage all browser cookies</p>
+          </div>
+        </header>
+
+        <!-- Filters and Search -->
+        <div class="toolbar">
+          <div class="search-box">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="8"></circle>
+              <path d="m21 21-4.35-4.35"></path>
+            </svg>
+            <input type="text" id="cookieSearch" placeholder="Search cookies by name or domain...">
+          </div>
+
+          <div class="filter-group">
+            <select id="cookieCategoryFilter" class="filter-select">
+              <option value="">All Categories</option>
+              <option value="analytics">Analytics</option>
+              <option value="advertising">Advertising</option>
+              <option value="social">Social</option>
+              <option value="necessary">Necessary</option>
+              <option value="other">Other</option>
+            </select>
+
+            <select id="cookieDomainFilter" class="filter-select">
+              <option value="">All Domains</option>
+              <!-- Populated dynamically -->
+            </select>
+
+            <button class="btn-icon" id="cookieRefresh" title="Refresh">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"></path>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Bulk Actions -->
+        <div class="bulk-actions" id="bulkActions" style="display: none;">
+          <div class="bulk-info">
+            <span id="selectedCount">0</span> items selected
+          </div>
+          <div class="bulk-buttons">
+            <button class="btn-secondary" id="deselectAll">Deselect All</button>
+            <button class="btn-danger" id="deleteSelected">Delete Selected</button>
+            <button class="btn-secondary" id="exportSelected">Export Selected</button>
+          </div>
+        </div>
+
+        <!-- Cookies Table -->
+        <div class="table-container">
+          <table class="data-table" id="cookiesTable">
+            <thead>
+              <tr>
+                <th width="40">
+                  <input type="checkbox" id="selectAllCookies">
+                </th>
+                <th class="sortable" data-sort="name">
+                  Name
+                  <svg class="sort-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+                    <path d="M12 5v14M5 12l7 7 7-7"></path>
+                  </svg>
+                </th>
+                <th class="sortable" data-sort="domain">
+                  Domain
+                  <svg class="sort-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+                    <path d="M12 5v14M5 12l7 7 7-7"></path>
+                  </svg>
+                </th>
+                <th>Value</th>
+                <th>Category</th>
+                <th class="sortable" data-sort="size">
+                  Size
+                  <svg class="sort-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+                    <path d="M12 5v14M5 12l7 7 7-7"></path>
+                  </svg>
+                </th>
+                <th class="sortable" data-sort="expires">
+                  Expires
+                  <svg class="sort-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+                    <path d="M12 5v14M5 12l7 7 7-7"></path>
+                  </svg>
+                </th>
+                <th>Flags</th>
+                <th width="100">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="cookiesTableBody">
+              <!-- Populated by JS -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Pagination -->
+        <div class="pagination" id="cookiesPagination">
+          <button class="pagination-btn" id="cookiesPrevPage" disabled>Previous</button>
+          <span class="pagination-info" id="cookiesPaginationInfo">Page 1 of 1</span>
+          <button class="pagination-btn" id="cookiesNextPage" disabled>Next</button>
+        </div>
+      </div>
+
+      <!-- LocalStorage Tab -->
+      <div class="tab-content" id="tab-localStorage">
+        <header class="content-header">
+          <div>
+            <h1>Local Storage</h1>
+            <p class="content-subtitle">Persistent browser storage data</p>
+          </div>
+          <button class="btn-primary" id="refreshLocalStorage">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+              <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"></path>
+            </svg>
+            Refresh
+          </button>
+        </header>
+
+        <div class="storage-explorer" id="localStorageExplorer">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+
+      <!-- SessionStorage Tab -->
+      <div class="tab-content" id="tab-sessionStorage">
+        <header class="content-header">
+          <div>
+            <h1>Session Storage</h1>
+            <p class="content-subtitle">Temporary browser storage data</p>
+          </div>
+          <button class="btn-primary" id="refreshSessionStorage">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+              <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"></path>
+            </svg>
+            Refresh
+          </button>
+        </header>
+
+        <div class="storage-explorer" id="sessionStorageExplorer">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+
+      <!-- IndexedDB Tab -->
+      <div class="tab-content" id="tab-indexedDB">
+        <header class="content-header">
+          <div>
+            <h1>IndexedDB</h1>
+            <p class="content-subtitle">Browser database storage</p>
+          </div>
+          <button class="btn-primary" id="refreshIndexedDB">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+              <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"></path>
+            </svg>
+            Refresh
+          </button>
+        </header>
+
+        <div class="tree-view" id="indexedDBTree">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+
+      <!-- Privacy Report Tab -->
+      <div class="tab-content" id="tab-privacy">
+        <header class="content-header">
+          <div>
+            <h1>Privacy Report</h1>
+            <p class="content-subtitle">Comprehensive privacy analysis</p>
+          </div>
+          <button class="btn-primary" id="exportReport">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"></path>
+            </svg>
+            Export Report
+          </button>
+        </header>
+
+        <div id="privacyReport">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+
+      <!-- Whitelist Tab -->
+      <div class="tab-content" id="tab-whitelist">
+        <header class="content-header">
+          <div>
+            <h1>Whitelist</h1>
+            <p class="content-subtitle">Domains excluded from tracking and cleanup</p>
+          </div>
+          <button class="btn-primary" id="addToWhitelist">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            Add Domain
+          </button>
+        </header>
+
+        <div class="whitelist-container" id="whitelistContainer">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+
+      <!-- Settings Tab -->
+      <div class="tab-content" id="tab-settings">
+        <header class="content-header">
+          <div>
+            <h1>Settings</h1>
+            <p class="content-subtitle">Configure StorageInsight preferences</p>
+          </div>
+        </header>
+
+        <div class="settings-container" id="settingsContainer">
+          <!-- Settings form -->
+        </div>
+      </div>
+
+      <!-- About Tab -->
+      <div class="tab-content" id="tab-about">
+        <header class="content-header">
+          <div>
+            <h1>About StorageInsight</h1>
+            <p class="content-subtitle">Version 2.0.0</p>
+          </div>
+        </header>
+
+        <div class="about-container">
+          <div class="about-section">
+            <h3>Privacy-Focused Storage Management</h3>
+            <p>StorageInsight helps you understand and control your browser storage across all websites. Track cookies, analyze privacy scores, and take control of your data.</p>
+          </div>
+
+          <div class="about-section">
+            <h3>Features</h3>
+            <ul>
+              <li>Comprehensive storage scanning (Cookies, LocalStorage, SessionStorage, IndexedDB)</li>
+              <li>Privacy score with detailed analysis</li>
+              <li>200+ tracking domain detection</li>
+              <li>One-click tracker removal</li>
+              <li>Domain whitelisting</li>
+              <li>Export capabilities</li>
+            </ul>
+          </div>
+
+          <div class="about-section">
+            <h3>Credits</h3>
+            <p>Built with Claude Code by Anthropic</p>
+            <p>Icons from Lucide</p>
+            <p>Charts by Chart.js</p>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Loading Overlay -->
+  <div class="loading-overlay" id="loadingOverlay">
+    <div class="spinner-large"></div>
+    <p id="loadingText">Loading...</p>
+  </div>
+
+  <script type="module" src="options-prompt5.js"></script>
+</body>
+</html>
