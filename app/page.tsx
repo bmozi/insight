@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import Image from 'next/image';
 import {
   Cookie,
   Database,
@@ -143,7 +144,7 @@ export default function Home() {
         const formattedScans: ScanSnapshot[] = scans.map((scan: any) => {
           // Extract breakdown from privacy analysis
           const breakdown = scan.data?._privacyAnalysis?.breakdown?.byCategory ||
-                           scan.data?._privacyAnalysis?.breakdown || {
+            scan.data?._privacyAnalysis?.breakdown || {
             analytics: 0,
             advertising: 0,
             social: 0,
@@ -154,9 +155,9 @@ export default function Home() {
 
           // Calculate tracking cookies from breakdown
           const trackingCookies = (breakdown.Analytics || breakdown.analytics || 0) +
-                                  (breakdown.Advertising || breakdown.advertising || 0) +
-                                  (breakdown.Social || breakdown.social || 0) +
-                                  (breakdown.Fingerprinting || breakdown.fingerprinting || 0);
+            (breakdown.Advertising || breakdown.advertising || 0) +
+            (breakdown.Social || breakdown.social || 0) +
+            (breakdown.Fingerprinting || breakdown.fingerprinting || 0);
 
           // Helper to extract numeric score from privacyScore (can be number or object with score property)
           const extractNumericScore = (ps: any): number => {
@@ -213,16 +214,16 @@ export default function Home() {
         const breakdown = extAnalysis.breakdown || {};
         const byCategory = breakdown.byCategory || breakdown;
         trackingCount = (byCategory.Analytics || byCategory.analytics || 0) +
-                       (byCategory.Advertising || byCategory.advertising || 0) +
-                       (byCategory.Social || byCategory.social || 0) +
-                       (byCategory.Fingerprinting || byCategory.fingerprinting || 0);
+          (byCategory.Advertising || byCategory.advertising || 0) +
+          (byCategory.Social || byCategory.social || 0) +
+          (byCategory.Fingerprinting || byCategory.fingerprinting || 0);
         privacyScore = analysis.privacyScore;
       } else {
         analysis = analyzePrivacy(extensionData);
         trackingCount = analysis.breakdown.analytics +
-                       analysis.breakdown.advertising +
-                       analysis.breakdown.social +
-                       analysis.breakdown.fingerprinting;
+          analysis.breakdown.advertising +
+          analysis.breakdown.social +
+          analysis.breakdown.fingerprinting;
         privacyScore = analysis.privacyScore;
       }
 
@@ -243,7 +244,7 @@ export default function Home() {
           const scans = await storageDB.getAllScans();
           const formattedScans: ScanSnapshot[] = scans.map((scan: any) => {
             const breakdown = scan.data?._privacyAnalysis?.breakdown?.byCategory ||
-                             scan.data?._privacyAnalysis?.breakdown || {
+              scan.data?._privacyAnalysis?.breakdown || {
               analytics: 0,
               advertising: 0,
               social: 0,
@@ -253,9 +254,9 @@ export default function Home() {
             };
 
             const scanTrackingCookies = (breakdown.Analytics || breakdown.analytics || 0) +
-                                        (breakdown.Advertising || breakdown.advertising || 0) +
-                                        (breakdown.Social || breakdown.social || 0) +
-                                        (breakdown.Fingerprinting || breakdown.fingerprinting || 0);
+              (breakdown.Advertising || breakdown.advertising || 0) +
+              (breakdown.Social || breakdown.social || 0) +
+              (breakdown.Fingerprinting || breakdown.fingerprinting || 0);
 
             const extractNumericScore = (ps: any): number => {
               if (typeof ps === 'number') return ps;
@@ -297,27 +298,27 @@ export default function Home() {
   // Prepare storage chart data
   const storageData = extensionData
     ? [
-        {
-          name: 'Cookies',
-          value: parseFloat((((extensionData._detailed?.cookies?.totalSize || extensionData.cookies?.totalSize || 0) / (1024 * 1024)).toFixed(2))),
-          color: '#8b5cf6'
-        },
-        {
-          name: 'Local Storage',
-          value: parseFloat((((extensionData._detailed?.localStorage?.totalSize || extensionData.localStorage?.totalSize || 0) / (1024 * 1024)).toFixed(2))),
-          color: '#3b82f6'
-        },
-        {
-          name: 'Session Storage',
-          value: parseFloat((((extensionData._detailed?.sessionStorage?.totalSize || extensionData.sessionStorage?.totalSize || 0) / (1024 * 1024)).toFixed(2))),
-          color: '#06b6d4'
-        },
-        {
-          name: 'IndexedDB',
-          value: parseFloat((((extensionData._detailed?.indexedDB?.estimatedSize || extensionData.indexedDB?.estimatedSize || 0) / (1024 * 1024)).toFixed(2))),
-          color: '#6366f1'
-        }
-      ]
+      {
+        name: 'Cookies',
+        value: parseFloat((((extensionData._detailed?.cookies?.totalSize || extensionData.cookies?.totalSize || 0) / (1024 * 1024)).toFixed(2))),
+        color: '#8b5cf6'
+      },
+      {
+        name: 'Local Storage',
+        value: parseFloat((((extensionData._detailed?.localStorage?.totalSize || extensionData.localStorage?.totalSize || 0) / (1024 * 1024)).toFixed(2))),
+        color: '#3b82f6'
+      },
+      {
+        name: 'Session Storage',
+        value: parseFloat((((extensionData._detailed?.sessionStorage?.totalSize || extensionData.sessionStorage?.totalSize || 0) / (1024 * 1024)).toFixed(2))),
+        color: '#06b6d4'
+      },
+      {
+        name: 'IndexedDB',
+        value: parseFloat((((extensionData._detailed?.indexedDB?.estimatedSize || extensionData.indexedDB?.estimatedSize || 0) / (1024 * 1024)).toFixed(2))),
+        color: '#6366f1'
+      }
+    ]
     : sampleStorageData;
 
   // Handler functions
@@ -437,7 +438,7 @@ export default function Home() {
   }, []);
 
   // Cookie Browser handlers
-  const handleDeleteCookies = useCallback((cookies: Array<{name: string, domain: string}>) => {
+  const handleDeleteCookies = useCallback((cookies: Array<{ name: string, domain: string }>) => {
     if (!isConnected) {
       alert('Extension not connected.');
       return;
@@ -668,13 +669,12 @@ export default function Home() {
         </div>
 
         <div
-          className={`group rounded-2xl p-3.5 shadow-lg backdrop-blur-sm transition-all hover:scale-105 hover:shadow-xl ${
-            hasScanned ? getPrivacyScoreBg(metrics.privacyScore) + ' border-2' : 'bg-white/95'
-          }`}
+          className={`group rounded-2xl p-3.5 shadow-lg backdrop-blur-sm transition-all hover:scale-105 hover:shadow-xl ${hasScanned ? getPrivacyScoreBg(metrics.privacyScore) + ' border-2' : 'bg-white/95'
+            }`}
         >
           <div className="mb-2 flex items-center justify-between">
             <div className="rounded-lg bg-green-100 p-2">
-              <Shield className="h-4 w-4 text-green-600" />
+              <Image src="/icon.png" alt="Privacy Score" width={16} height={16} className="h-4 w-4" />
             </div>
             {hasScanned && metrics.privacyScore >= 70 ? (
               <CheckCircle className="h-3.5 w-3.5 text-green-500" />
@@ -696,7 +696,7 @@ export default function Home() {
           {privacyAnalysis.recommendations?.length > 0 && (
             <div className="rounded-2xl bg-white/95 p-4 shadow-lg backdrop-blur-sm">
               <div className="mb-3 flex items-center gap-2">
-                <Shield className="h-4 w-4 text-purple-600" />
+                <Image src="/icon.png" alt="Recommendations" width={16} height={16} className="h-4 w-4" />
                 <h2 className="text-base font-bold text-gray-800">Recommendations</h2>
               </div>
               <div className="space-y-2">
@@ -749,11 +749,10 @@ export default function Home() {
                   return (
                     <div
                       key={index}
-                      className={`rounded-lg border-l-3 p-3 ${
-                        item.severity === 'critical' ? 'border-red-600 bg-red-50' :
-                        item.severity === 'high' ? 'border-orange-500 bg-orange-50' :
-                        'border-yellow-500 bg-yellow-50'
-                      }`}
+                      className={`rounded-lg border-l-3 p-3 ${item.severity === 'critical' ? 'border-red-600 bg-red-50' :
+                          item.severity === 'high' ? 'border-orange-500 bg-orange-50' :
+                            'border-yellow-500 bg-yellow-50'
+                        }`}
                     >
                       <div className="mb-1.5 flex items-center justify-between">
                         <div className="flex items-center gap-1.5">
@@ -765,13 +764,12 @@ export default function Home() {
                         {action && (
                           <button
                             onClick={() => handleRecommendationAction(action)}
-                            className={`rounded-md px-2.5 py-1 text-xs font-semibold text-white transition-all hover:scale-105 active:scale-95 ${
-                              item.severity === 'critical'
+                            className={`rounded-md px-2.5 py-1 text-xs font-semibold text-white transition-all hover:scale-105 active:scale-95 ${item.severity === 'critical'
                                 ? 'bg-red-600 hover:bg-red-700'
                                 : item.severity === 'high'
-                                ? 'bg-orange-500 hover:bg-orange-600'
-                                : 'bg-yellow-500 hover:bg-yellow-600'
-                            }`}
+                                  ? 'bg-orange-500 hover:bg-orange-600'
+                                  : 'bg-yellow-500 hover:bg-yellow-600'
+                              }`}
                           >
                             {action === 'CLEAR_FINGERPRINTING' ? 'Remove' : 'Clear'}
                           </button>
@@ -929,7 +927,7 @@ export default function Home() {
         <header className="mb-4 text-center">
           <div className="mb-2 flex items-center justify-center gap-2">
             <div className="rounded-xl bg-white/95 p-2 shadow-lg backdrop-blur-sm">
-              <Shield className="h-8 w-8 text-[#8b5cf6]" />
+              <Image src="/icon.png" alt="Insight Logo" width={32} height={32} className="h-8 w-8" />
             </div>
             <h1 className="text-4xl font-bold text-white drop-shadow-lg">Insight</h1>
           </div>
@@ -973,11 +971,10 @@ export default function Home() {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-semibold transition-all cursor-pointer ${
-                  activeTab === tab.id
+                className={`flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-semibold transition-all cursor-pointer ${activeTab === tab.id
                     ? 'bg-purple-600 text-white shadow-md scale-105'
                     : 'bg-gray-100 text-gray-700 hover:bg-purple-100 hover:text-purple-700'
-                }`}
+                  }`}
               >
                 {tab.icon}
                 <span>{tab.label}</span>
