@@ -67,3 +67,13 @@ test-*.js
 
 # Shell scripts (dev utilities)
 *.sh
+
+# Log files
+*.log
+stdout.txt
+stderr.txt
+npx_*.txt
+
+# Test/debug JSON files
+init_request*.json
+response*.json
