@@ -613,111 +613,111 @@ export default function Home() {
   const renderOverview = () => (
     <>
       {/* Metrics Cards */}
-      <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-5">
-        <div className="group rounded-3xl bg-white/95 p-6 shadow-lg backdrop-blur-sm transition-all hover:scale-105 hover:shadow-xl">
-          <div className="mb-4 flex items-center justify-between">
-            <div className="rounded-xl bg-purple-100 p-3">
-              <Cookie className="h-6 w-6 text-[#8b5cf6]" />
+      <div className="mb-4 grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-5">
+        <div className="group rounded-2xl bg-white/95 p-3.5 shadow-lg backdrop-blur-sm transition-all hover:scale-105 hover:shadow-xl">
+          <div className="mb-2 flex items-center justify-between">
+            <div className="rounded-lg bg-purple-100 p-2">
+              <Cookie className="h-4 w-4 text-[#8b5cf6]" />
             </div>
-            <TrendingUp className="h-5 w-5 text-gray-400" />
+            <TrendingUp className="h-3.5 w-3.5 text-gray-400" />
           </div>
-          <div className="mb-1 text-3xl font-bold text-gray-800">
+          <div className="mb-0.5 text-2xl font-bold text-gray-800">
             {hasScanned ? metrics.totalCookies : '—'}
           </div>
-          <div className="text-sm font-medium text-gray-600">Cookies</div>
+          <div className="text-xs font-medium text-gray-600">Cookies</div>
         </div>
 
-        <div className="group rounded-3xl bg-white/95 p-6 shadow-lg backdrop-blur-sm transition-all hover:scale-105 hover:shadow-xl">
-          <div className="mb-4 flex items-center justify-between">
-            <div className="rounded-xl bg-red-100 p-3">
-              <Target className="h-6 w-6 text-red-600" />
+        <div className="group rounded-2xl bg-white/95 p-3.5 shadow-lg backdrop-blur-sm transition-all hover:scale-105 hover:shadow-xl">
+          <div className="mb-2 flex items-center justify-between">
+            <div className="rounded-lg bg-red-100 p-2">
+              <Target className="h-4 w-4 text-red-600" />
             </div>
-            <AlertCircle className="h-5 w-5 text-red-400" />
+            <AlertCircle className="h-3.5 w-3.5 text-red-400" />
           </div>
-          <div className="mb-1 text-3xl font-bold text-gray-800">
+          <div className="mb-0.5 text-2xl font-bold text-gray-800">
             {hasScanned ? metrics.trackingCookies : '—'}
           </div>
-          <div className="text-sm font-medium text-gray-600">Tracking</div>
+          <div className="text-xs font-medium text-gray-600">Tracking</div>
         </div>
 
-        <div className="group rounded-3xl bg-white/95 p-6 shadow-lg backdrop-blur-sm transition-all hover:scale-105 hover:shadow-xl">
-          <div className="mb-4 flex items-center justify-between">
-            <div className="rounded-xl bg-cyan-100 p-3">
-              <Globe className="h-6 w-6 text-cyan-600" />
+        <div className="group rounded-2xl bg-white/95 p-3.5 shadow-lg backdrop-blur-sm transition-all hover:scale-105 hover:shadow-xl">
+          <div className="mb-2 flex items-center justify-between">
+            <div className="rounded-lg bg-cyan-100 p-2">
+              <Globe className="h-4 w-4 text-cyan-600" />
             </div>
-            <TrendingUp className="h-5 w-5 text-gray-400" />
+            <TrendingUp className="h-3.5 w-3.5 text-gray-400" />
           </div>
-          <div className="mb-1 text-3xl font-bold text-gray-800">
+          <div className="mb-0.5 text-2xl font-bold text-gray-800">
             {hasScanned ? metrics.uniqueDomains : '—'}
           </div>
-          <div className="text-sm font-medium text-gray-600">Domains</div>
+          <div className="text-xs font-medium text-gray-600">Domains</div>
         </div>
 
-        <div className="group rounded-3xl bg-white/95 p-6 shadow-lg backdrop-blur-sm transition-all hover:scale-105 hover:shadow-xl">
-          <div className="mb-4 flex items-center justify-between">
-            <div className="rounded-xl bg-blue-100 p-3">
-              <Database className="h-6 w-6 text-[#3b82f6]" />
+        <div className="group rounded-2xl bg-white/95 p-3.5 shadow-lg backdrop-blur-sm transition-all hover:scale-105 hover:shadow-xl">
+          <div className="mb-2 flex items-center justify-between">
+            <div className="rounded-lg bg-blue-100 p-2">
+              <Database className="h-4 w-4 text-[#3b82f6]" />
             </div>
-            <TrendingUp className="h-5 w-5 text-gray-400" />
+            <TrendingUp className="h-3.5 w-3.5 text-gray-400" />
           </div>
-          <div className="mb-1 text-3xl font-bold text-gray-800">
+          <div className="mb-0.5 text-2xl font-bold text-gray-800">
             {hasScanned ? `${metrics.totalStorageMB}` : '—'}
-            {hasScanned && <span className="text-lg"> MB</span>}
+            {hasScanned && <span className="text-sm"> MB</span>}
           </div>
-          <div className="text-sm font-medium text-gray-600">Storage</div>
+          <div className="text-xs font-medium text-gray-600">Storage</div>
         </div>
 
         <div
-          className={`group rounded-3xl p-6 shadow-lg backdrop-blur-sm transition-all hover:scale-105 hover:shadow-xl ${
+          className={`group rounded-2xl p-3.5 shadow-lg backdrop-blur-sm transition-all hover:scale-105 hover:shadow-xl ${
             hasScanned ? getPrivacyScoreBg(metrics.privacyScore) + ' border-2' : 'bg-white/95'
           }`}
         >
-          <div className="mb-4 flex items-center justify-between">
-            <div className="rounded-xl bg-green-100 p-3">
-              <Shield className="h-6 w-6 text-green-600" />
+          <div className="mb-2 flex items-center justify-between">
+            <div className="rounded-lg bg-green-100 p-2">
+              <Shield className="h-4 w-4 text-green-600" />
             </div>
             {hasScanned && metrics.privacyScore >= 70 ? (
-              <CheckCircle className="h-5 w-5 text-green-500" />
+              <CheckCircle className="h-3.5 w-3.5 text-green-500" />
             ) : hasScanned ? (
-              <AlertCircle className="h-5 w-5 text-yellow-500" />
+              <AlertCircle className="h-3.5 w-3.5 text-yellow-500" />
             ) : null}
           </div>
-          <div className={`mb-1 text-3xl font-bold ${hasScanned ? getPrivacyScoreColor(metrics.privacyScore) : 'text-gray-800'}`}>
+          <div className={`mb-0.5 text-2xl font-bold ${hasScanned ? getPrivacyScoreColor(metrics.privacyScore) : 'text-gray-800'}`}>
             {hasScanned ? metrics.privacyScore : '—'}
-            {hasScanned && <span className="text-lg">/100</span>}
+            {hasScanned && <span className="text-sm">/100</span>}
           </div>
-          <div className="text-sm font-medium text-gray-600">Privacy Score</div>
+          <div className="text-xs font-medium text-gray-600">Privacy Score</div>
         </div>
       </div>
 
       {/* Privacy Analysis */}
       {privacyAnalysis && (
-        <div className="mb-8 grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <div className="mb-4 grid grid-cols-1 gap-3 lg:grid-cols-2">
           {privacyAnalysis.recommendations?.length > 0 && (
-            <div className="rounded-3xl bg-white/95 p-6 shadow-lg backdrop-blur-sm">
-              <div className="mb-4 flex items-center gap-2">
-                <Shield className="h-5 w-5 text-purple-600" />
-                <h2 className="text-xl font-bold text-gray-800">Recommendations</h2>
+            <div className="rounded-2xl bg-white/95 p-4 shadow-lg backdrop-blur-sm">
+              <div className="mb-3 flex items-center gap-2">
+                <Shield className="h-4 w-4 text-purple-600" />
+                <h2 className="text-base font-bold text-gray-800">Recommendations</h2>
               </div>
-              <div className="space-y-3">
+              <div className="space-y-2">
                 {privacyAnalysis.recommendations.map((rec: any, index: number) => {
                   const title = typeof rec === 'object' ? rec.title : rec;
                   const description = typeof rec === 'object' ? rec.description : '';
                   const action = typeof rec === 'object' ? rec.action : null;
 
                   return (
-                    <div key={index} className="flex items-start gap-3 rounded-xl border-l-4 border-purple-500 bg-purple-50 p-4">
-                      <span className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-purple-600 text-xs font-bold text-white">
+                    <div key={index} className="flex items-start gap-2 rounded-lg border-l-3 border-purple-500 bg-purple-50 p-3">
+                      <span className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-purple-600 text-xs font-bold text-white">
                         {index + 1}
                       </span>
                       <div className="flex-1">
-                        <p className="font-medium text-gray-800">{title}</p>
-                        {description && <p className="text-xs text-gray-600 mt-1">{description}</p>}
+                        <p className="text-sm font-medium text-gray-800">{title}</p>
+                        {description && <p className="text-xs text-gray-600 mt-0.5">{description}</p>}
                       </div>
                       {action && (
                         <button
                           onClick={() => handleRecommendationAction(action)}
-                          className="flex-shrink-0 rounded-lg bg-purple-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-purple-700"
+                          className="flex-shrink-0 rounded-md bg-purple-600 px-2.5 py-1 text-xs font-semibold text-white hover:bg-purple-700"
                         >
                           Fix
                         </button>
@@ -730,13 +730,13 @@ export default function Home() {
           )}
 
           {/* High Risk Items - Always show this section */}
-          <div className="rounded-3xl bg-white/95 p-6 shadow-lg backdrop-blur-sm">
-            <div className="mb-4 flex items-center gap-2">
-              <AlertCircle className={`h-5 w-5 ${privacyAnalysis.highRiskItems?.length > 0 ? 'text-red-600' : 'text-green-600'}`} />
-              <h2 className="text-xl font-bold text-gray-800">High Risk Items</h2>
+          <div className="rounded-2xl bg-white/95 p-4 shadow-lg backdrop-blur-sm">
+            <div className="mb-3 flex items-center gap-2">
+              <AlertCircle className={`h-4 w-4 ${privacyAnalysis.highRiskItems?.length > 0 ? 'text-red-600' : 'text-green-600'}`} />
+              <h2 className="text-base font-bold text-gray-800">High Risk Items</h2>
             </div>
             {privacyAnalysis.highRiskItems?.length > 0 ? (
-              <div className="space-y-3">
+              <div className="space-y-2">
                 {privacyAnalysis.highRiskItems.map((item: any, index: number) => {
                   const actionMap: { [key: string]: string } = {
                     'fingerprinting': 'CLEAR_FINGERPRINTING',
@@ -749,23 +749,23 @@ export default function Home() {
                   return (
                     <div
                       key={index}
-                      className={`rounded-xl border-l-4 p-4 ${
+                      className={`rounded-lg border-l-3 p-3 ${
                         item.severity === 'critical' ? 'border-red-600 bg-red-50' :
                         item.severity === 'high' ? 'border-orange-500 bg-orange-50' :
                         'border-yellow-500 bg-yellow-50'
                       }`}
                     >
-                      <div className="mb-2 flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <span className="text-lg">
+                      <div className="mb-1.5 flex items-center justify-between">
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-base">
                             {item.severity === 'critical' ? '🔴' : item.severity === 'high' ? '⚠️' : '⚠️'}
                           </span>
-                          <h3 className="font-semibold text-gray-800">{item.title}</h3>
+                          <h3 className="text-sm font-semibold text-gray-800">{item.title}</h3>
                         </div>
                         {action && (
                           <button
                             onClick={() => handleRecommendationAction(action)}
-                            className={`rounded-lg px-3 py-1.5 text-xs font-semibold text-white transition-all hover:scale-105 active:scale-95 ${
+                            className={`rounded-md px-2.5 py-1 text-xs font-semibold text-white transition-all hover:scale-105 active:scale-95 ${
                               item.severity === 'critical'
                                 ? 'bg-red-600 hover:bg-red-700'
                                 : item.severity === 'high'
@@ -777,15 +777,15 @@ export default function Home() {
                           </button>
                         )}
                       </div>
-                      <p className="text-sm text-gray-600">{item.description}</p>
+                      <p className="text-xs text-gray-600">{item.description}</p>
                       {item.items && item.items.length > 0 && (
-                        <details className="mt-3">
+                        <details className="mt-2">
                           <summary className="cursor-pointer text-xs font-medium text-gray-500 hover:text-gray-700">
                             View {item.items.length} detected item{item.items.length !== 1 ? 's' : ''}
                           </summary>
-                          <div className="mt-2 max-h-32 overflow-y-auto rounded-lg bg-white/50 p-2">
+                          <div className="mt-1.5 max-h-24 overflow-y-auto rounded-md bg-white/50 p-1.5">
                             {item.items.slice(0, 10).map((detected: any, idx: number) => (
-                              <div key={idx} className="flex items-center justify-between border-b border-gray-100 py-1 text-xs last:border-0">
+                              <div key={idx} className="flex items-center justify-between border-b border-gray-100 py-0.5 text-xs last:border-0">
                                 <span className="font-mono text-gray-700">
                                   {detected.name || detected.tracker || detected.key || (typeof detected === 'string' ? detected : JSON.stringify(detected))}
                                 </span>
@@ -793,7 +793,7 @@ export default function Home() {
                               </div>
                             ))}
                             {item.items.length > 10 && (
-                              <p className="pt-2 text-center text-xs text-gray-400">
+                              <p className="pt-1 text-center text-xs text-gray-400">
                                 ... and {item.items.length - 10} more
                               </p>
                             )}
@@ -805,10 +805,10 @@ export default function Home() {
                 })}
               </div>
             ) : (
-              <div className="flex items-center justify-center rounded-xl bg-green-50 p-6">
-                <div className="flex items-center gap-3">
-                  <CheckCircle className="h-6 w-6 text-green-600" />
-                  <span className="text-lg font-medium text-green-700">No high-risk items detected</span>
+              <div className="flex items-center justify-center rounded-lg bg-green-50 p-4">
+                <div className="flex items-center gap-2">
+                  <CheckCircle className="h-5 w-5 text-green-600" />
+                  <span className="text-sm font-medium text-green-700">No high-risk items detected</span>
                 </div>
               </div>
             )}
@@ -817,10 +817,10 @@ export default function Home() {
       )}
 
       {/* Storage Chart and Quick Actions */}
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-        <div className="rounded-3xl bg-white/95 p-6 shadow-lg backdrop-blur-sm lg:col-span-2">
-          <h2 className="mb-6 text-xl font-bold text-gray-800">Storage Usage by Category</h2>
-          <ResponsiveContainer width="100%" height={300}>
+      <div className="grid grid-cols-1 gap-3 lg:grid-cols-3">
+        <div className="rounded-2xl bg-white/95 p-4 shadow-lg backdrop-blur-sm lg:col-span-2">
+          <h2 className="mb-3 text-base font-bold text-gray-800">Storage Usage by Category</h2>
+          <ResponsiveContainer width="100%" height={240}>
             <PieChart>
               <Pie
                 data={storageData}
@@ -828,7 +828,7 @@ export default function Home() {
                 cy="50%"
                 labelLine={false}
                 label={renderCustomLabel}
-                outerRadius={100}
+                outerRadius={80}
                 fill="#8884d8"
                 dataKey="value"
               >
@@ -847,7 +847,7 @@ export default function Home() {
               />
               <Legend
                 verticalAlign="bottom"
-                height={36}
+                height={28}
                 iconType="circle"
                 formatter={(value: string) => {
                   const dataEntry = storageData.find(d => d.name === value);
@@ -858,35 +858,35 @@ export default function Home() {
           </ResponsiveContainer>
         </div>
 
-        <div className="rounded-3xl bg-white/95 p-6 shadow-lg backdrop-blur-sm">
-          <h2 className="mb-6 text-xl font-bold text-gray-800">Quick Actions</h2>
-          <div className="flex flex-col gap-4">
+        <div className="rounded-2xl bg-white/95 p-4 shadow-lg backdrop-blur-sm">
+          <h2 className="mb-3 text-base font-bold text-gray-800">Quick Actions</h2>
+          <div className="flex flex-col gap-2.5">
             <button
               onClick={handleClearAllTracking}
-              className="group flex items-center gap-3 rounded-2xl bg-red-50 px-5 py-4 text-left font-semibold text-red-700 hover:bg-red-100"
+              className="group flex items-center gap-2 rounded-xl bg-red-50 px-3 py-2.5 text-left text-sm font-semibold text-red-700 hover:bg-red-100"
             >
-              <div className="rounded-lg bg-red-100 p-2">
-                <Trash2 className="h-5 w-5" />
+              <div className="rounded-lg bg-red-100 p-1.5">
+                <Trash2 className="h-4 w-4" />
               </div>
               <span>Clear All Tracking</span>
             </button>
 
             <button
               onClick={handleExportData}
-              className="group flex items-center gap-3 rounded-2xl bg-blue-50 px-5 py-4 text-left font-semibold text-blue-700 hover:bg-blue-100"
+              className="group flex items-center gap-2 rounded-xl bg-blue-50 px-3 py-2.5 text-left text-sm font-semibold text-blue-700 hover:bg-blue-100"
             >
-              <div className="rounded-lg bg-blue-100 p-2">
-                <Download className="h-5 w-5" />
+              <div className="rounded-lg bg-blue-100 p-1.5">
+                <Download className="h-4 w-4" />
               </div>
               <span>Export Data</span>
             </button>
 
             <button
               onClick={() => setActiveTab('settings')}
-              className="group flex items-center gap-3 rounded-2xl bg-gray-50 px-5 py-4 text-left font-semibold text-gray-700 hover:bg-gray-100"
+              className="group flex items-center gap-2 rounded-xl bg-gray-50 px-3 py-2.5 text-left text-sm font-semibold text-gray-700 hover:bg-gray-100"
             >
-              <div className="rounded-lg bg-gray-100 p-2">
-                <Settings className="h-5 w-5" />
+              <div className="rounded-lg bg-gray-100 p-1.5">
+                <Settings className="h-4 w-4" />
               </div>
               <span>Settings</span>
             </button>
@@ -895,25 +895,25 @@ export default function Home() {
       </div>
 
       {/* Learn About Privacy Card */}
-      <div className="mt-6 rounded-3xl bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 p-1 shadow-lg">
-        <div className="rounded-[22px] bg-white/95 p-6 backdrop-blur-sm">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            <div className="flex items-center gap-4">
-              <div className="rounded-2xl bg-gradient-to-br from-purple-100 to-indigo-100 p-4">
-                <Lightbulb className="h-8 w-8 text-purple-600" />
+      <div className="mt-3 rounded-2xl bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 p-0.5 shadow-lg">
+        <div className="rounded-[14px] bg-white/95 p-3.5 backdrop-blur-sm">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <div className="rounded-xl bg-gradient-to-br from-purple-100 to-indigo-100 p-2.5">
+                <Lightbulb className="h-5 w-5 text-purple-600" />
               </div>
               <div>
-                <h3 className="text-xl font-bold text-gray-800">New to Online Privacy?</h3>
-                <p className="text-gray-600">
+                <h3 className="text-sm font-bold text-gray-800">New to Online Privacy?</h3>
+                <p className="text-xs text-gray-600">
                   Learn how cookies work and why companies track you across the web
                 </p>
               </div>
             </div>
             <button
               onClick={() => setActiveTab('learn')}
-              className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 px-6 py-3 font-semibold text-white shadow-lg transition-all hover:scale-105 hover:shadow-xl"
+              className="flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-purple-600 to-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-lg transition-all hover:scale-105 hover:shadow-xl"
             >
-              <BookOpen className="h-5 w-5" />
+              <BookOpen className="h-4 w-4" />
               <span>Learn More</span>
             </button>
           </div>
@@ -923,63 +923,60 @@ export default function Home() {
   );
 
   return (
-    <div className="min-h-screen p-4 md:p-8 lg:p-12">
+    <div className="min-h-screen p-4 md:p-6 lg:p-8">
       <div className="mx-auto max-w-7xl">
         {/* Header */}
-        <header className="mb-8 text-center">
-          <div className="mb-4 flex items-center justify-center gap-3">
-            <div className="rounded-2xl bg-white/95 p-3 shadow-lg backdrop-blur-sm">
-              <Shield className="h-10 w-10 text-[#8b5cf6]" />
+        <header className="mb-4 text-center">
+          <div className="mb-2 flex items-center justify-center gap-2">
+            <div className="rounded-xl bg-white/95 p-2 shadow-lg backdrop-blur-sm">
+              <Shield className="h-8 w-8 text-[#8b5cf6]" />
             </div>
-            <h1 className="text-5xl font-bold text-white drop-shadow-lg">Insight</h1>
+            <h1 className="text-4xl font-bold text-white drop-shadow-lg">Insight</h1>
           </div>
-          <p className="text-xl text-white/90 drop-shadow">Take Control of Your Data</p>
+          <p className="text-lg text-white/90 drop-shadow">Take Control of Your Data</p>
         </header>
 
         {/* Connection Status */}
         {isConnected ? (
-          <div className="mb-6 rounded-2xl bg-gradient-to-r from-green-500 to-emerald-500 p-4 shadow-lg">
+          <div className="mb-3 rounded-xl bg-gradient-to-r from-green-500 to-emerald-500 p-2.5 shadow-lg">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <Wifi className="h-5 w-5 text-white" />
+              <div className="flex items-center gap-2">
+                <Wifi className="h-4 w-4 text-white" />
                 <div>
-                  <p className="font-semibold text-white">Extension Connected</p>
-                  <p className="text-sm text-white/90">
+                  <p className="text-sm font-semibold text-white">Extension Connected</p>
+                  <p className="text-xs text-white/90">
                     Real browser data {lastUpdated && `• Updated ${new Date(lastUpdated).toLocaleTimeString()}`}
                   </p>
                 </div>
               </div>
-              <button onClick={refresh} className="rounded-lg bg-white/20 px-3 py-2 text-white hover:bg-white/30">
-                <RefreshCw className="h-4 w-4" />
+              <button onClick={refresh} className="rounded-lg bg-white/20 px-2 py-1.5 text-white hover:bg-white/30">
+                <RefreshCw className="h-3.5 w-3.5" />
               </button>
             </div>
           </div>
         ) : (
-          <div className="mb-6 rounded-2xl bg-gradient-to-r from-yellow-500 to-orange-500 p-4 shadow-lg">
-            <div className="flex items-center gap-3">
-              <WifiOff className="h-5 w-5 text-white" />
+          <div className="mb-3 rounded-xl bg-gradient-to-r from-yellow-500 to-orange-500 p-2.5 shadow-lg">
+            <div className="flex items-center gap-2">
+              <WifiOff className="h-4 w-4 text-white" />
               <div>
-                <p className="font-semibold text-white">Extension Not Connected</p>
-                <p className="text-sm text-white/90">Install the extension for real browser data</p>
+                <p className="text-sm font-semibold text-white">Extension Not Connected</p>
+                <p className="text-xs text-white/90">Install the extension for real browser data</p>
               </div>
             </div>
           </div>
         )}
 
         {/* Tab Navigation */}
-        <div className="mb-6 rounded-2xl bg-white/95 p-3 shadow-lg backdrop-blur-sm">
-          <div className="mb-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wide">
-            Navigate to:
-          </div>
-          <div className="flex flex-wrap justify-center gap-2">
+        <div className="mb-3 rounded-xl bg-white/95 p-2 shadow-lg backdrop-blur-sm">
+          <div className="flex flex-wrap justify-center gap-1.5">
             {tabs.map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold transition-all cursor-pointer ${
+                className={`flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-semibold transition-all cursor-pointer ${
                   activeTab === tab.id
-                    ? 'bg-purple-600 text-white shadow-lg scale-105'
-                    : 'bg-gray-100 text-gray-700 hover:bg-purple-100 hover:text-purple-700 hover:shadow-md'
+                    ? 'bg-purple-600 text-white shadow-md scale-105'
+                    : 'bg-gray-100 text-gray-700 hover:bg-purple-100 hover:text-purple-700'
                 }`}
               >
                 {tab.icon}
@@ -991,20 +988,20 @@ export default function Home() {
 
         {/* Scan Button (show on Overview) */}
         {activeTab === 'overview' && (
-          <div className="mb-8 flex justify-center">
+          <div className="mb-4 flex justify-center">
             <button
               onClick={handleScan}
               disabled={isScanning || loading}
-              className="group flex items-center gap-3 rounded-full bg-white px-8 py-4 text-lg font-semibold text-[#8b5cf6] shadow-xl hover:scale-105 hover:shadow-2xl disabled:opacity-70"
+              className="group flex items-center gap-2 rounded-full bg-white px-6 py-2.5 text-sm font-semibold text-[#8b5cf6] shadow-lg hover:scale-105 hover:shadow-xl disabled:opacity-70"
             >
               {isScanning || loading ? (
                 <>
-                  <div className="h-6 w-6 animate-spin rounded-full border-4 border-[#8b5cf6] border-t-transparent"></div>
+                  <div className="h-4 w-4 animate-spin rounded-full border-3 border-[#8b5cf6] border-t-transparent"></div>
                   <span>{loading ? 'Loading...' : 'Scanning...'}</span>
                 </>
               ) : (
                 <>
-                  {isConnected ? <RefreshCw className="h-6 w-6" /> : <Search className="h-6 w-6" />}
+                  {isConnected ? <RefreshCw className="h-4 w-4" /> : <Search className="h-4 w-4" />}
                   <span>{isConnected ? 'Refresh Data' : 'Scan Storage'}</span>
                 </>
               )}
@@ -1079,11 +1076,11 @@ export default function Home() {
         </div>
 
         {/* Footer */}
-        <footer className="mt-12 text-center">
-          <p className="mb-3 text-sm text-white/80">
+        <footer className="mt-6 text-center">
+          <p className="mb-2 text-xs text-white/80">
             Insight helps you understand and manage your browser storage for better privacy
           </p>
-          <div className="flex flex-wrap items-center justify-center gap-4 text-xs text-white/70">
+          <div className="flex flex-wrap items-center justify-center gap-3 text-xs text-white/70">
             <a href="/storageinsight-extension/SETUP.md" target="_blank" className="hover:text-white">
               Extension Setup
             </a>

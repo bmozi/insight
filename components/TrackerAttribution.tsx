@@ -65,7 +65,7 @@ const TrackerAttribution: React.FC<TrackerAttributionProps> = ({ data, onDeleteC
   const [filterCategory, setFilterCategory] = useState<CookieCategory | 'all'>('all');
   const [searchQuery, setSearchQuery] = useState('');
 
-  // Group cookies by company
+  // Group cookies by company - only show actual tracking cookies
   const companyTrackers = useMemo(() => {
     // Handle both data structures:
     // 1. data.cookies is an array (from extension's legacyFormat)
@@ -89,11 +89,16 @@ const TrackerAttribution: React.FC<TrackerAttributionProps> = ({ data, onDeleteC
         company = getCompanyFromDomain(cookie.domain);
       }
 
-      // If we still don't have a company, skip or use "Unknown"
+      // If we still don't have a company, skip
       if (!company) return;
 
       const companyInfo = getCompanyInfo(company);
       if (!companyInfo) return;
+
+      // Only include actual tracking categories (not essential/functional)
+      // This ensures the Trackers tab only shows real trackers, not all matched companies
+      const trackingCategories = ['analytics', 'advertising', 'social', 'fingerprinting'];
+      if (!trackingCategories.includes(companyInfo.category)) return;
 
       // Track sites
       if (!sitesPerCompany.has(company)) {
