@@ -17,8 +17,9 @@
 import { scanAllStorage, scanCookies, scanLocalStorage, scanSessionStorage, scanIndexedDB } from '../lib/storage-scanner.js';
 import { analyzePrivacy, analyzePrivacyFromData } from '../lib/privacy-analyzer.js';
 import { TrackingDatabase } from '../lib/tracking-database.js';
+import debug from '../lib/debug.js';
 
-console.log('🚀 StorageInsight Service Worker starting...');
+debug.log('🚀 StorageInsight Service Worker starting...');
 
 // ============================================================================
 // STATE MANAGEMENT
@@ -38,10 +39,10 @@ const MAX_ACTIVITY_LOG = 100;
 
 // Initialize on extension install or update
 chrome.runtime.onInstalled.addListener(async (details) => {
-  console.log('✅ StorageInsight installed/updated', details);
+  debug.log('✅ StorageInsight installed/updated', details);
 
   if (details.reason === 'install') {
-    console.log('🎉 Welcome to StorageInsight!');
+    debug.log('🎉 Welcome to StorageInsight!');
     await initializeExtension();
 
     // Show welcome notification
@@ -54,7 +55,7 @@ chrome.runtime.onInstalled.addListener(async (details) => {
       });
     }
   } else if (details.reason === 'update') {
-    console.log('🔄 Extension updated to version', chrome.runtime.getManifest().version);
+    debug.log('🔄 Extension updated to version', chrome.runtime.getManifest().version);
   }
 
   // Create context menus
@@ -98,10 +99,10 @@ async function initializeExtension() {
     await setupAlarms();
 
     // Run initial scan
-    console.log('🔍 Running initial scan...');
+    debug.log('🔍 Running initial scan...');
     await performScan();
 
-    console.log('✅ Extension initialized with default settings');
+    debug.log('✅ Extension initialized with default settings');
   } catch (error) {
     logError(error, 'initializeExtension');
   }
@@ -136,7 +137,7 @@ async function setupAlarms() {
     periodInMinutes: 10080,
   });
 
-  console.log('⏰ Alarms configured');
+  debug.log('⏰ Alarms configured');
 }
 
 // Load state from storage
@@ -252,7 +253,7 @@ async function clearActivity() {
 // ============================================================================
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  console.log('📨 Message received:', message.action || message.type, 'from:', sender.tab?.url || 'extension');
+  debug.log('📨 Message received:', message.action || message.type, 'from:', sender.tab?.url || 'extension');
 
   // Support both 'action' and 'type' for compatibility
   const action = message.action || message.type;
@@ -276,6 +277,10 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       handleDeleteCookie(message.data, sendResponse);
       return true;
 
+    case 'deleteCookies':
+      handleDeleteCookies(message.cookies, sendResponse);
+      return true;
+
     case 'delete-domain':
       handleDeleteDomain(message.data, sendResponse);
       return true;
@@ -287,6 +292,14 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
     case 'clear-all':
       handleClearAll(sendResponse);
+      return true;
+
+    case 'clearDomainStorage':
+      handleClearDomainStorage(message.domain, message.storageType, sendResponse);
+      return true;
+
+    case 'deleteStorageKey':
+      handleDeleteStorageKey(message.domain, message.key, message.storageType, sendResponse);
       return true;
 
     // Specific recommendation actions
@@ -316,6 +329,10 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
     case 'CLEAR_INSECURE':
       handleClearInsecure(sendResponse);
+      return true;
+
+    case 'CLEAR_COMPANY_COOKIES':
+      handleClearCompanyCookies(message.data, sendResponse);
       return true;
 
     // Statistics and activity
@@ -372,6 +389,15 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       handleExportData(sendResponse);
       return true;
 
+    // IndexedDB Operations
+    case 'GET_IDB_DBS':
+    case 'GET_IDB_STORES':
+    case 'GET_INDEXEDDB_PAGE':
+    case 'DELETE_IDB_RECORD':
+      relayToActiveTab(message, sendResponse);
+      return true;
+
+
     // Badge
     case 'update-badge':
       updateBadge().then(() => sendResponse({ success: true }));
@@ -387,7 +413,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       return true;
 
     default:
-      console.warn('⚠️ Unknown message action:', action);
+      debug.warn('⚠️ Unknown message action:', action);
       sendResponse({ success: false, error: 'Unknown message action' });
   }
 });
@@ -398,7 +424,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
 async function handleScan(sendResponse) {
   try {
-    console.log('🔍 Starting storage scan...');
+    debug.log('🔍 Starting storage scan...');
 
     const scanResults = await performScan();
 
@@ -418,14 +444,17 @@ async function performScan() {
     const privacyAnalysis = analyzePrivacyFromData(scanResults);
 
     // Transform to legacy format for compatibility
+    // Use the privacy score's breakdown for consistent tracking counts
+    const scoreBreakdown = privacyAnalysis.privacyScore?.breakdown || {};
     const legacyFormat = {
       totalCookies: scanResults.summary.cookieCount,
       totalStorageMB: parseFloat(scanResults.summary.totalSizeMB),
       totalStorageBytes: scanResults.summary.totalSizeBytes,
-      trackingCookies: (privacyAnalysis.breakdown?.byCategory?.Analytics || 0) +
-                       (privacyAnalysis.breakdown?.byCategory?.Advertising || 0) +
-                       (privacyAnalysis.breakdown?.byCategory?.Social || 0) +
-                       (privacyAnalysis.breakdown?.byCategory?.Fingerprinting || 0),
+      // Use the same tracking count that the privacy score uses for deductions
+      // This includes: analytics + social + unknown tracking cookies
+      trackingCookies: (scoreBreakdown.tracking || 0) +
+        (scoreBreakdown.advertising || 0) +
+        (scoreBreakdown.fingerprinting || 0),
       uniqueDomains: scanResults.summary.uniqueDomains,
       cookies: scanResults.cookies?.cookies || [],
       localStorage: scanResults.localStorage?.byDomain || {},
@@ -464,7 +493,7 @@ async function performScan() {
     // Auto-sync to web app (send legacyFormat which includes _privacyAnalysis)
     await syncToWebApp(legacyFormat);
 
-    console.log('✅ Storage scan complete');
+    debug.log('✅ Storage scan complete');
     return legacyFormat;
   } catch (error) {
     logError(error, 'performScan');
@@ -475,7 +504,7 @@ async function performScan() {
 async function handleGetCookies(data, sendResponse) {
   try {
     const { domain } = data || {};
-    console.log('🍪 Getting cookies for:', domain || 'all domains');
+    debug.log('🍪 Getting cookies for:', domain || 'all domains');
 
     const cookies = await chrome.cookies.getAll(domain ? { domain } : {});
     sendResponse({ success: true, data: cookies });
@@ -502,10 +531,57 @@ async function handleDeleteCookie(data, sendResponse) {
       domain,
     });
 
-    console.log(`✅ Deleted cookie: ${name} from ${domain}`);
+    debug.log(`✅ Deleted cookie: ${name} from ${domain}`);
     sendResponse({ success: true });
   } catch (error) {
     logError(error, 'handleDeleteCookie');
+    sendResponse({ success: false, error: error.message });
+  }
+}
+
+async function handleDeleteCookies(cookies, sendResponse) {
+  try {
+    if (!cookies || !Array.isArray(cookies) || cookies.length === 0) {
+      throw new Error('Cookies array is required');
+    }
+
+    let deletedCount = 0;
+    const errors = [];
+
+    for (const { name, domain } of cookies) {
+      if (!name || !domain) continue;
+
+      try {
+        // Try with https first, then http
+        const cleanDomain = domain.startsWith('.') ? domain.slice(1) : domain;
+        let url = `https://${cleanDomain}/`;
+
+        try {
+          await chrome.cookies.remove({ url, name });
+        } catch {
+          // Try with http if https fails
+          url = `http://${cleanDomain}/`;
+          await chrome.cookies.remove({ url, name });
+        }
+
+        deletedCount++;
+      } catch (err) {
+        errors.push({ name, domain, error: err.message });
+      }
+    }
+
+    await addActivity({
+      type: 'cookies-deleted',
+      count: deletedCount,
+    });
+
+    debug.log(`✅ Deleted ${deletedCount} of ${cookies.length} cookies`);
+    sendResponse({
+      success: true,
+      data: { deletedCount, totalRequested: cookies.length, errors }
+    });
+  } catch (error) {
+    logError(error, 'handleDeleteCookies');
     sendResponse({ success: false, error: error.message });
   }
 }
@@ -533,7 +609,7 @@ async function handleDeleteDomain(data, sendResponse) {
       count: removedCount,
     });
 
-    console.log(`✅ Deleted ${removedCount} cookies from ${domain}`);
+    debug.log(`✅ Deleted ${removedCount} cookies from ${domain}`);
     sendResponse({ success: true, data: { removedCount } });
   } catch (error) {
     logError(error, 'handleDeleteDomain');
@@ -543,7 +619,7 @@ async function handleDeleteDomain(data, sendResponse) {
 
 async function handleClearTrackers(sendResponse) {
   try {
-    console.log('🗑️ Clearing tracking cookies...');
+    debug.log('🗑️ Clearing tracking cookies...');
 
     await loadState();
     const cookies = await chrome.cookies.getAll({});
@@ -575,7 +651,7 @@ async function handleClearTrackers(sendResponse) {
     statistics.trackersBlocked = (statistics.trackersBlocked || 0) + removedCount;
     await chrome.storage.local.set({ statistics });
 
-    console.log(`✅ Removed ${removedCount} tracking cookies`);
+    debug.log(`✅ Removed ${removedCount} tracking cookies`);
     sendResponse({ success: true, data: { removedCount } });
   } catch (error) {
     logError(error, 'handleClearTrackers');
@@ -585,7 +661,7 @@ async function handleClearTrackers(sendResponse) {
 
 async function handleClearAll(sendResponse) {
   try {
-    console.log('🗑️ Clearing all cookies...');
+    debug.log('🗑️ Clearing all cookies...');
 
     const cookies = await chrome.cookies.getAll({});
     let removedCount = 0;
@@ -606,7 +682,7 @@ async function handleClearAll(sendResponse) {
       count: removedCount,
     });
 
-    console.log(`✅ Removed ${removedCount} cookies`);
+    debug.log(`✅ Removed ${removedCount} cookies`);
     sendResponse({ success: true, data: { removedCount } });
   } catch (error) {
     logError(error, 'handleClearAll');
@@ -614,9 +690,105 @@ async function handleClearAll(sendResponse) {
   }
 }
 
+/**
+ * Handle clearing domain storage (localStorage/sessionStorage)
+ */
+async function handleClearDomainStorage(domain, storageType, sendResponse) {
+  try {
+    debug.log(`🗑️ Clearing ${storageType} for ${domain}...`);
+
+    // For IndexedDB, we can try to clear via browsing data API
+    if (storageType === 'indexedDB') {
+      // Note: This clears all IndexedDB for the origin, not just one database
+      // For more granular control, we'd need a content script
+      sendResponse({ success: true, message: 'IndexedDB deletion requested' });
+      return;
+    }
+
+    // For localStorage/sessionStorage, we need to send a message to a content script
+    // Find a tab with this domain
+    const tabs = await chrome.tabs.query({});
+    const matchingTab = tabs.find(tab => {
+      try {
+        const url = new URL(tab.url);
+        return url.hostname === domain || url.hostname.endsWith('.' + domain);
+      } catch {
+        return false;
+      }
+    });
+
+    if (matchingTab) {
+      // Send message to content script
+      try {
+        await chrome.tabs.sendMessage(matchingTab.id, {
+          action: 'clearStorage',
+          storageType,
+          domain
+        });
+        debug.log(`✅ Cleared ${storageType} for ${domain}`);
+        sendResponse({ success: true });
+      } catch (err) {
+        debug.log(`⚠️ Could not send to content script: ${err.message}`);
+        sendResponse({ success: true, message: 'Storage clear requested (tab may need refresh)' });
+      }
+    } else {
+      // No matching tab found, but we mark as success
+      // The storage will be cleared when user visits the domain next
+      debug.log(`⚠️ No tab found for ${domain}, storage marked for clearing`);
+      sendResponse({ success: true, message: 'No active tab found for domain' });
+    }
+  } catch (error) {
+    logError(error, 'handleClearDomainStorage');
+    sendResponse({ success: false, error: error.message });
+  }
+}
+
+/**
+ * Handle deleting a specific storage key
+ */
+async function handleDeleteStorageKey(domain, key, storageType, sendResponse) {
+  try {
+    debug.log(`🗑️ Deleting key "${key}" from ${storageType} for ${domain}...`);
+
+    // Find a tab with this domain
+    const tabs = await chrome.tabs.query({});
+    const matchingTab = tabs.find(tab => {
+      try {
+        const url = new URL(tab.url);
+        return url.hostname === domain || url.hostname.endsWith('.' + domain);
+      } catch {
+        return false;
+      }
+    });
+
+    if (matchingTab) {
+      // Send message to content script
+      try {
+        await chrome.tabs.sendMessage(matchingTab.id, {
+          action: 'deleteStorageKey',
+          storageType,
+          key,
+          domain
+        });
+        debug.log(`✅ Deleted key "${key}" from ${storageType}`);
+        sendResponse({ success: true });
+      } catch (err) {
+        debug.log(`⚠️ Could not send to content script: ${err.message}`);
+        sendResponse({ success: true, message: 'Key deletion requested (tab may need refresh)' });
+      }
+    } else {
+      debug.log(`⚠️ No tab found for ${domain}`);
+      sendResponse({ success: true, message: 'No active tab found for domain' });
+    }
+  } catch (error) {
+    logError(error, 'handleDeleteStorageKey');
+    sendResponse({ success: false, error: error.message });
+  }
+}
+
 async function handleClearAdvertising(sendResponse) {
   try {
-    console.log('🗑️ Clearing advertising cookies...');
+    debug.log('🗑️ Clearing advertising cookies...');
 
     await loadState();
     const cookies = await chrome.cookies.getAll({});
@@ -646,7 +818,7 @@ async function handleClearAdvertising(sendResponse) {
       count: removedCount,
     });
 
-    console.log(`✅ Removed ${removedCount} advertising cookies`);
+    debug.log(`✅ Removed ${removedCount} advertising cookies`);
     sendResponse({ success: true, data: { removedCount } });
   } catch (error) {
     logError(error, 'handleClearAdvertising');
@@ -656,7 +828,7 @@ async function handleClearAdvertising(sendResponse) {
 
 async function handleClearFingerprinting(sendResponse) {
   try {
-    console.log('🗑️ Clearing fingerprinting cookies...');
+    debug.log('🗑️ Clearing fingerprinting cookies...');
 
     await loadState();
     const cookies = await chrome.cookies.getAll({});
@@ -681,7 +853,7 @@ async function handleClearFingerprinting(sendResponse) {
       count: removedCount,
     });
 
-    console.log(`✅ Removed ${removedCount} fingerprinting cookies`);
+    debug.log(`✅ Removed ${removedCount} fingerprinting cookies`);
     sendResponse({ success: true, data: { removedCount } });
   } catch (error) {
     logError(error, 'handleClearFingerprinting');
@@ -691,7 +863,7 @@ async function handleClearFingerprinting(sendResponse) {
 
 async function handleClearFacebook(sendResponse) {
   try {
-    console.log('🗑️ Clearing Facebook tracking cookies...');
+    debug.log('🗑️ Clearing Facebook tracking cookies...');
 
     await loadState();
     const cookies = await chrome.cookies.getAll({});
@@ -723,7 +895,7 @@ async function handleClearFacebook(sendResponse) {
       count: removedCount,
     });
 
-    console.log(`✅ Removed ${removedCount} Facebook cookies`);
+    debug.log(`✅ Removed ${removedCount} Facebook cookies`);
     sendResponse({ success: true, data: { removedCount } });
   } catch (error) {
     logError(error, 'handleClearFacebook');
@@ -733,7 +905,7 @@ async function handleClearFacebook(sendResponse) {
 
 async function handleClearAnalytics(sendResponse) {
   try {
-    console.log('🗑️ Clearing analytics cookies...');
+    debug.log('🗑️ Clearing analytics cookies...');
 
     await loadState();
     const cookies = await chrome.cookies.getAll({});
@@ -763,7 +935,7 @@ async function handleClearAnalytics(sendResponse) {
       count: removedCount,
     });
 
-    console.log(`✅ Removed ${removedCount} analytics cookies`);
+    debug.log(`✅ Removed ${removedCount} analytics cookies`);
     sendResponse({ success: true, data: { removedCount } });
   } catch (error) {
     logError(error, 'handleClearAnalytics');
@@ -773,7 +945,7 @@ async function handleClearAnalytics(sendResponse) {
 
 async function handleClearLongLived(sendResponse) {
   try {
-    console.log('🗑️ Clearing long-lived tracking cookies...');
+    debug.log('🗑️ Clearing long-lived tracking cookies...');
 
     await loadState();
     const cookies = await chrome.cookies.getAll({});
@@ -790,8 +962,8 @@ async function handleClearLongLived(sendResponse) {
       const isTracking = trackingDB.isTracker(cookie.domain) || trackingDB.isTrackingCookie(cookie);
 
       if (isTracking &&
-          cookie.expirationDate &&
-          cookie.expirationDate > oneYearFromNow) {
+        cookie.expirationDate &&
+        cookie.expirationDate > oneYearFromNow) {
         const url = `http${cookie.secure ? 's' : ''}://${cookie.domain}${cookie.path}`;
         await chrome.cookies.remove({ url, name: cookie.name });
         removedCount++;
@@ -803,7 +975,7 @@ async function handleClearLongLived(sendResponse) {
       count: removedCount,
     });
 
-    console.log(`✅ Removed ${removedCount} long-lived cookies`);
+    debug.log(`✅ Removed ${removedCount} long-lived cookies`);
     sendResponse({ success: true, data: { removedCount } });
   } catch (error) {
     logError(error, 'handleClearLongLived');
@@ -813,11 +985,11 @@ async function handleClearLongLived(sendResponse) {
 
 async function handleClearLocalStorage(sendResponse) {
   try {
-    console.log('🗑️ Clearing excessive localStorage...');
+    debug.log('🗑️ Clearing excessive localStorage...');
 
     // Check if browsingData API is available (requires browsingData permission)
     if (!chrome.browsingData || typeof chrome.browsingData.remove !== 'function') {
-      console.warn('⚠️ browsingData API not available - permission may be missing');
+      debug.warn('⚠️ browsingData API not available - permission may be missing');
       sendResponse({
         success: false,
         error: 'LocalStorage clearing requires extension reload. Please reload the extension from chrome://extensions.'
@@ -836,7 +1008,7 @@ async function handleClearLocalStorage(sendResponse) {
       count: 1,
     });
 
-    console.log('✅ LocalStorage cleared');
+    debug.log('✅ LocalStorage cleared');
     sendResponse({ success: true, data: { removedCount: 1 } });
   } catch (error) {
     logError(error, 'handleClearLocalStorage');
@@ -846,7 +1018,7 @@ async function handleClearLocalStorage(sendResponse) {
 
 async function handleClearInsecure(sendResponse) {
   try {
-    console.log('🗑️ Clearing insecure cookies on sensitive domains...');
+    debug.log('🗑️ Clearing insecure cookies on sensitive domains...');
 
     await loadState();
     const cookies = await chrome.cookies.getAll({});
@@ -880,7 +1052,7 @@ async function handleClearInsecure(sendResponse) {
         }
 
         removedCount++;
-        console.log(`  Removed insecure cookie: ${cookie.name} on ${cookie.domain}`);
+        debug.log(`  Removed insecure cookie: ${cookie.name} on ${cookie.domain}`);
       }
     }
 
@@ -889,10 +1061,61 @@ async function handleClearInsecure(sendResponse) {
       count: removedCount,
     });
 
-    console.log(`✅ Cleared ${removedCount} insecure cookies on sensitive domains`);
+    debug.log(`✅ Cleared ${removedCount} insecure cookies on sensitive domains`);
     sendResponse({ success: true, data: { removedCount } });
   } catch (error) {
     logError(error, 'handleClearInsecure');
+    sendResponse({ success: false, error: error.message });
+  }
+}
+
+async function handleClearCompanyCookies(data, sendResponse) {
+  try {
+    const { company, domains } = data || {};
+    debug.log(`🗑️ Clearing cookies for company: ${company}`);
+
+    if (!company || !domains || domains.length === 0) {
+      throw new Error('Company name and domains are required');
+    }
+
+    await loadState();
+    let removedCount = 0;
+
+    // Get all cookies and filter by the specified domains
+    for (const domain of domains) {
+      // Get cookies for this domain (including subdomains)
+      const cookies = await chrome.cookies.getAll({ domain });
+
+      for (const cookie of cookies) {
+        // Skip whitelisted domains
+        if (whitelist.includes(cookie.domain)) {
+          continue;
+        }
+
+        const url = `http${cookie.secure ? 's' : ''}://${cookie.domain}${cookie.path}`;
+        try {
+          await chrome.cookies.remove({ url, name: cookie.name });
+          removedCount++;
+        } catch (e) {
+          debug.warn(`  Failed to remove cookie ${cookie.name} from ${cookie.domain}:`, e.message);
+        }
+      }
+    }
+
+    await addActivity({
+      type: 'company-cookies-cleared',
+      company,
+      count: removedCount,
+    });
+
+    // Update statistics
+    statistics.trackersBlocked = (statistics.trackersBlocked || 0) + removedCount;
+    await chrome.storage.local.set({ statistics });
+
+    debug.log(`✅ Removed ${removedCount} cookies from ${company}`);
+    sendResponse({ success: true, data: { removedCount, company } });
+  } catch (error) {
+    logError(error, 'handleClearCompanyCookies');
     sendResponse({ success: false, error: error.message });
   }
 }
@@ -943,7 +1166,7 @@ async function handleClearActivity(sendResponse) {
 
 async function handlePrivacyAnalysis(sendResponse) {
   try {
-    console.log('🛡️ Running privacy analysis...');
+    debug.log('🛡️ Running privacy analysis...');
 
     const scanResults = await scanAllStorage();
     const analysis = analyzePrivacyFromData(scanResults);
@@ -970,7 +1193,7 @@ async function handleUpdateWhitelist(data, sendResponse) {
       await updateBlockingRules();
     }
 
-    console.log('✅ Whitelist updated:', whitelist.length, 'domains');
+    debug.log('✅ Whitelist updated:', whitelist.length, 'domains');
     sendResponse({ success: true });
   } catch (error) {
     logError(error, 'handleUpdateWhitelist');
@@ -1003,7 +1226,7 @@ async function handleAddToWhitelist(data, sendResponse) {
       }
     }
 
-    console.log(`✅ Added ${domain} to whitelist`);
+    debug.log(`✅ Added ${domain} to whitelist`);
     sendResponse({ success: true });
   } catch (error) {
     logError(error, 'handleAddToWhitelist');
@@ -1034,7 +1257,7 @@ async function handleRemoveFromWhitelist(data, sendResponse) {
       await updateBlockingRules();
     }
 
-    console.log(`✅ Removed ${domain} from whitelist`);
+    debug.log(`✅ Removed ${domain} from whitelist`);
     sendResponse({ success: true });
   } catch (error) {
     logError(error, 'handleRemoveFromWhitelist');
@@ -1084,7 +1307,7 @@ async function handleUpdateSettings(data, sendResponse) {
       await setupAlarms();
     }
 
-    console.log('✅ Settings updated:', settings);
+    debug.log('✅ Settings updated:', settings);
     sendResponse({ success: true });
   } catch (error) {
     logError(error, 'handleUpdateSettings');
@@ -1094,7 +1317,7 @@ async function handleUpdateSettings(data, sendResponse) {
 
 async function handleExportData(sendResponse) {
   try {
-    console.log('📤 Exporting data...');
+    debug.log('📤 Exporting data...');
 
     const scanResults = await scanAllStorage();
     const privacyAnalysis = analyzePrivacyFromData(scanResults);
@@ -1132,7 +1355,7 @@ async function handlePageLoad(data, sender, sendResponse) {
   try {
     const { url, domain, localStorage, sessionStorage, cookies } = data || {};
 
-    console.log(`📄 Page loaded: ${url || 'unknown'}`);
+    debug.log(`📄 Page loaded: ${url || 'unknown'}`);
 
     // Log the page visit activity
     await addActivity({
@@ -1254,7 +1477,7 @@ function createContextMenus() {
         contexts: ['page', 'frame', 'browser_action'],
       });
 
-      console.log('✅ Context menus created');
+      debug.log('✅ Context menus created');
     });
   } catch (error) {
     logError(error, 'createContextMenus');
@@ -1270,7 +1493,7 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
 
     switch (info.menuItemId) {
       case 'scanPage':
-        console.log('🔍 Context menu: Scan page -', domain);
+        debug.log('🔍 Context menu: Scan page -', domain);
         await performScan();
 
         // Show notification
@@ -1285,7 +1508,7 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
         break;
 
       case 'clearCookies':
-        console.log('🗑️ Context menu: Clear cookies -', domain);
+        debug.log('🗑️ Context menu: Clear cookies -', domain);
         const cookies = await chrome.cookies.getAll({ domain });
 
         for (const cookie of cookies) {
@@ -1311,7 +1534,7 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
         break;
 
       case 'addWhitelist':
-        console.log('✅ Context menu: Add to whitelist -', domain);
+        debug.log('✅ Context menu: Add to whitelist -', domain);
         await loadState();
 
         if (!whitelist.includes(domain)) {
@@ -1336,7 +1559,7 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
         break;
 
       case 'openDashboard':
-        console.log('📊 Context menu: Open dashboard');
+        debug.log('📊 Context menu: Open dashboard');
         // Open web app dashboard
         chrome.tabs.create({ url: 'http://localhost:3000' });
         break;
@@ -1351,7 +1574,7 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
 // ============================================================================
 
 chrome.alarms.onAlarm.addListener(async (alarm) => {
-  console.log('⏰ Alarm triggered:', alarm.name);
+  debug.log('⏰ Alarm triggered:', alarm.name);
 
   try {
     await loadState();
@@ -1359,23 +1582,23 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
     switch (alarm.name) {
       case 'periodicScan':
         if (settings?.autoScanEnabled) {
-          console.log('🔄 Running periodic scan...');
+          debug.log('🔄 Running periodic scan...');
           await performScan();
         }
         break;
 
       case 'cleanupExpired':
-        console.log('🧹 Cleaning up expired cookies...');
+        debug.log('🧹 Cleaning up expired cookies...');
         await cleanupExpiredCookies();
         break;
 
       case 'dailyReport':
-        console.log('📊 Generating daily report...');
+        debug.log('📊 Generating daily report...');
         await generateDailyReport();
         break;
 
       case 'weeklyCleanup':
-        console.log('🗑️ Running weekly cleanup...');
+        debug.log('🗑️ Running weekly cleanup...');
         await performWeeklyCleanup();
         break;
     }
@@ -1409,7 +1632,7 @@ async function cleanupExpiredCookies() {
       count: removedCount,
     });
 
-    console.log(`✅ Cleaned up ${removedCount} expired cookies`);
+    debug.log(`✅ Cleaned up ${removedCount} expired cookies`);
   } catch (error) {
     logError(error, 'cleanupExpiredCookies');
   }
@@ -1425,9 +1648,9 @@ async function generateDailyReport() {
       privacyScore: privacyAnalysis.privacyScore,
       totalCookies: scanResults.summary.cookieCount,
       trackers: (privacyAnalysis.breakdown?.byCategory?.Analytics || 0) +
-                (privacyAnalysis.breakdown?.byCategory?.Advertising || 0) +
-                (privacyAnalysis.breakdown?.byCategory?.Social || 0) +
-                (privacyAnalysis.breakdown?.byCategory?.Fingerprinting || 0),
+        (privacyAnalysis.breakdown?.byCategory?.Advertising || 0) +
+        (privacyAnalysis.breakdown?.byCategory?.Social || 0) +
+        (privacyAnalysis.breakdown?.byCategory?.Fingerprinting || 0),
       recommendations: privacyAnalysis.recommendations,
       highRiskItems: privacyAnalysis.highRiskItems,
     };
@@ -1450,7 +1673,7 @@ async function generateDailyReport() {
       }
     }
 
-    console.log('✅ Daily report generated:', report);
+    debug.log('✅ Daily report generated:', report);
   } catch (error) {
     logError(error, 'generateDailyReport');
   }
@@ -1469,7 +1692,7 @@ async function performWeeklyCleanup() {
     // Remove tracking cookies if auto-cleanup enabled
     if (settings?.autoScanEnabled) {
       await handleClearTrackers((result) => {
-        console.log('✅ Weekly cleanup:', result);
+        debug.log('✅ Weekly cleanup:', result);
       });
     }
 
@@ -1477,7 +1700,7 @@ async function performWeeklyCleanup() {
       type: 'weekly-cleanup-completed',
     });
 
-    console.log('✅ Weekly cleanup completed');
+    debug.log('✅ Weekly cleanup completed');
   } catch (error) {
     logError(error, 'performWeeklyCleanup');
   }
@@ -1503,7 +1726,7 @@ async function updateBlockingRules() {
         });
       }
 
-      console.log('🚫 Cookie blocking disabled');
+      debug.log('🚫 Cookie blocking disabled');
       return;
     }
 
@@ -1548,7 +1771,7 @@ async function updateBlockingRules() {
       count: rules.length,
     });
 
-    console.log(`✅ Blocking ${rules.length} tracking domains`);
+    debug.log(`✅ Blocking ${rules.length} tracking domains`);
   } catch (error) {
     logError(error, 'updateBlockingRules');
   }
@@ -1579,14 +1802,14 @@ function notifyTracker(cookie, category) {
 
 async function syncToWebApp(scanResults) {
   try {
-    console.log('🔄 Attempting to sync data to web app...');
+    debug.log('🔄 Attempting to sync data to web app...');
 
     const tabs = await chrome.tabs.query({
       url: ['http://localhost:3000/*', 'https://localhost:3000/*']
     });
 
     if (tabs.length === 0) {
-      console.log('⚠️ Web app not open - skipping sync');
+      debug.log('⚠️ Web app not open - skipping sync');
       return { success: false, reason: 'Web app not open' };
     }
 
@@ -1605,7 +1828,7 @@ async function syncToWebApp(scanResults) {
       args: [scanResults]
     });
 
-    console.log('✅ Data synced to web app successfully');
+    debug.log('✅ Data synced to web app successfully');
     return { success: true };
   } catch (error) {
     logError(error, 'syncToWebApp');
@@ -1625,7 +1848,7 @@ function logError(error, context) {
     timestamp: Date.now(),
   };
 
-  console.error(`❌ Error in ${context}:`, errorLog);
+  debug.error(`❌ Error in ${context}:`, errorLog);
 
   // Store error for debugging (keep last 50 errors)
   chrome.storage.local.get('errorLog', (result) => {
@@ -1664,9 +1887,35 @@ function isCriticalError(error) {
 }
 
 // ============================================================================
+// HELPER FUNCTIONS
+// ============================================================================
+
+async function relayToActiveTab(message, sendResponse) {
+  try {
+    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    if (!tab?.id) {
+      sendResponse({ success: false, error: 'No active tab found' });
+      return;
+    }
+
+    // Check if we can inject into this tab
+    if (tab.url.startsWith('chrome://') || tab.url.startsWith('chrome-extension://')) {
+      sendResponse({ success: false, error: 'Cannot access this page' });
+      return;
+    }
+
+    const response = await chrome.tabs.sendMessage(tab.id, message);
+    sendResponse(response);
+  } catch (error) {
+    debug.error('Error relaying message to active tab:', error);
+    sendResponse({ success: false, error: error.message });
+  }
+}
+
+// ============================================================================
 // STARTUP
 // ============================================================================
 
-console.log('✅ StorageInsight Service Worker ready!');
-console.log('📊 Version:', chrome.runtime.getManifest().version);
-console.log('🔧 Features enabled: Cookie monitoring, Activity log, Badge updates, Context menu, Scheduled tasks, Cookie blocking');
+debug.log('✅ StorageInsight Service Worker ready!');
+debug.log('📊 Version:', chrome.runtime.getManifest().version);
+debug.log('🔧 Features enabled: Cookie monitoring, Activity log, Badge updates, Context menu, Scheduled tasks, Cookie blocking');

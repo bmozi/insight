@@ -3,13 +3,26 @@
  * Runs on every web page to monitor storage usage with batching and pagination
  */
 
+// ============================================================================
+// DEBUG UTILITY (inline for non-module scripts)
+// ============================================================================
+let _debugEnabled = false;
+try {
+  chrome.storage.local.get(['debugMode'], (r) => { _debugEnabled = r?.debugMode || false; });
+} catch (e) { /* ignore */ }
+const debug = {
+  log: (...args) => { if (_debugEnabled) debug.log(...args); },
+  warn: (...args) => { debug.warn(...args); },
+  error: (...args) => { debug.error(...args); }
+};
+
 // Global error handler to suppress "Extension context invalidated" errors
 // This error is expected when the extension is reloaded while the page is still open
 window.addEventListener('error', (event) => {
   if (event.message && event.message.includes('Extension context invalidated')) {
     event.preventDefault();
     event.stopPropagation();
-    console.warn('⚠️ Extension was reloaded. Please refresh the page to reconnect.');
+    debug.warn('⚠️ Extension was reloaded. Please refresh the page to reconnect.');
     return true;
   }
 }, true);
@@ -18,7 +31,7 @@ window.addEventListener('error', (event) => {
 window.addEventListener('unhandledrejection', (event) => {
   if (event.reason && event.reason.message && event.reason.message.includes('Extension context invalidated')) {
     event.preventDefault();
-    console.warn('⚠️ Extension was reloaded. Please refresh the page to reconnect.');
+    debug.warn('⚠️ Extension was reloaded. Please refresh the page to reconnect.');
   }
 });
 
@@ -40,7 +53,7 @@ function setupDisconnectDetection() {
 
     port.onDisconnect.addListener(() => {
       extensionDisconnected = true;
-      console.warn('⚠️ Extension disconnected. Please refresh the page to reconnect.');
+      debug.warn('⚠️ Extension disconnected. Please refresh the page to reconnect.');
 
       // Cancel any pending debounced/throttled operations (if they exist)
       if (typeof debouncedNotifyBatch !== 'undefined' && debouncedNotifyBatch?.cancel) {
@@ -50,14 +63,14 @@ function setupDisconnectDetection() {
   } catch (error) {
     // If we can't connect, the extension is already disconnected
     extensionDisconnected = true;
-    console.warn('⚠️ Could not connect to extension:', error.message);
+    debug.warn('⚠️ Could not connect to extension:', error.message);
   }
 }
 
 // Setup disconnect detection immediately (uses try-catch internally for safety)
 setupDisconnectDetection();
 
-console.log('🔍 StorageInsight content script loaded');
+debug.log('🔍 StorageInsight content script loaded');
 
 // ============================================================================
 // PERFORMANCE UTILITIES
@@ -74,7 +87,7 @@ function debounce(func, delay) {
   let timeoutId;
   let lastArgs;
 
-  const debounced = function(...args) {
+  const debounced = function (...args) {
     lastArgs = args;
     clearTimeout(timeoutId);
 
@@ -84,7 +97,7 @@ function debounce(func, delay) {
   };
 
   // Allow immediate flush of pending execution
-  debounced.flush = function() {
+  debounced.flush = function () {
     clearTimeout(timeoutId);
     if (lastArgs) {
       func.apply(this, lastArgs);
@@ -92,7 +105,7 @@ function debounce(func, delay) {
   };
 
   // Allow cancellation
-  debounced.cancel = function() {
+  debounced.cancel = function () {
     clearTimeout(timeoutId);
     lastArgs = undefined;
   };
@@ -112,7 +125,7 @@ function throttle(func, limit) {
   let lastFunc;
   let lastRan;
 
-  return function(...args) {
+  return function (...args) {
     if (!inThrottle) {
       func.apply(this, args);
       lastRan = Date.now();
@@ -158,7 +171,7 @@ function isExtensionContextValid() {
  */
 function safeSendMessage(message, callback) {
   if (!isExtensionContextValid()) {
-    console.warn('⚠️ Extension context invalidated. Please refresh the page.');
+    debug.warn('⚠️ Extension context invalidated. Please refresh the page.');
     if (callback) {
       callback({ success: false, error: 'Extension context invalidated. Please refresh the page.' });
     }
@@ -169,7 +182,7 @@ function safeSendMessage(message, callback) {
     chrome.runtime.sendMessage(message, (response) => {
       // Check for runtime errors (e.g., extension context invalidated during the call)
       if (chrome.runtime.lastError) {
-        console.warn('⚠️ Extension communication error:', chrome.runtime.lastError.message);
+        debug.warn('⚠️ Extension communication error:', chrome.runtime.lastError.message);
         if (callback) {
           callback({ success: false, error: chrome.runtime.lastError.message });
         }
@@ -180,7 +193,7 @@ function safeSendMessage(message, callback) {
       }
     });
   } catch (error) {
-    console.warn('⚠️ Failed to send message to extension:', error.message);
+    debug.warn('⚠️ Failed to send message to extension:', error.message);
     if (callback) {
       callback({ success: false, error: error.message });
     }
@@ -303,7 +316,7 @@ const debouncedNotifyBatch = debounce(() => {
     }
   }, (response) => {
     if (response?.success !== false) {
-      console.log(`📦 Sent batch of ${batchCount} storage changes`);
+      debug.log(`📦 Sent batch of ${batchCount} storage changes`);
       // Clear batch after successful send
       changeBatch = [];
     }
@@ -351,7 +364,7 @@ function calculateSize(data) {
     }
   } catch (error) {
     // Fallback for circular references or other errors
-    console.warn('Size calculation error:', error);
+    debug.warn('Size calculation error:', error);
     size = 0;
   }
 
@@ -385,7 +398,7 @@ function getStoragePaginated(storageType, offset = 0, limit = 100) {
     let storage;
 
     // Select storage type
-    switch(storageType) {
+    switch (storageType) {
       case 'localStorage':
         storage = localStorage;
         break;
@@ -395,7 +408,7 @@ function getStoragePaginated(storageType, offset = 0, limit = 100) {
       default:
         // For IndexedDB, use async function
         if (storageType === 'indexedDB') {
-          console.warn('Use getIndexedDBLazy for IndexedDB pagination');
+          debug.warn('Use getIndexedDBLazy for IndexedDB pagination');
           result.error = 'Use getIndexedDBLazy for IndexedDB';
           return result;
         }
@@ -440,7 +453,7 @@ function getStoragePaginated(storageType, offset = 0, limit = 100) {
 
   } catch (error) {
     result.error = error.message;
-    console.error(`Error paginating ${storageType}:`, error);
+    debug.error(`Error paginating ${storageType}:`, error);
   }
 
   return result;
@@ -540,10 +553,80 @@ async function getIndexedDBLazy(dbName, storeName, options = {}) {
 
   } catch (error) {
     result.error = error.message;
-    console.error(`Error lazy loading IndexedDB ${dbName}/${storeName}:`, error);
+    debug.error(`Error lazy loading IndexedDB ${dbName}/${storeName}:`, error);
   }
 
   return result;
+}
+
+/**
+ * Get list of all IndexedDB databases
+ * @returns {Promise<Array>} List of databases with name and version
+ */
+async function getIndexedDBDatabases() {
+  try {
+    if (!indexedDB.databases) {
+      return []; // API not supported in older browsers
+    }
+    const dbs = await indexedDB.databases();
+    return dbs.map(db => ({ name: db.name, version: db.version }));
+  } catch (error) {
+    debug.warn('Error getting IndexedDB databases:', error);
+    return [];
+  }
+}
+
+/**
+ * Get list of object stores for a database
+ * @param {string} dbName - Database name
+ * @returns {Promise<Array>} List of object store names
+ */
+async function getIndexedDBObjectStores(dbName) {
+  try {
+    const db = await new Promise((resolve, reject) => {
+      const request = indexedDB.open(dbName);
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error);
+    });
+    const stores = Array.from(db.objectStoreNames);
+    db.close();
+    return stores;
+  } catch (error) {
+    debug.warn(`Error getting stores for ${dbName}:`, error);
+    return [];
+  }
+}
+
+/**
+ * Delete a specific record from IndexedDB
+ * @param {string} dbName - Database name
+ * @param {string} storeName - Object store name
+ * @param {*} key - Record key
+ * @returns {Promise<boolean>} Success status
+ */
+async function deleteIndexedDBRecord(dbName, storeName, key) {
+  try {
+    const db = await new Promise((resolve, reject) => {
+      const request = indexedDB.open(dbName);
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error);
+    });
+
+    const transaction = db.transaction([storeName], 'readwrite');
+    const objectStore = transaction.objectStore(storeName);
+
+    await new Promise((resolve, reject) => {
+      const request = objectStore.delete(key);
+      request.onsuccess = () => resolve();
+      request.onerror = () => reject(request.error);
+    });
+
+    db.close();
+    return true;
+  } catch (error) {
+    debug.error(`Error deleting IndexedDB record ${dbName}/${storeName}/${key}:`, error);
+    throw error;
+  }
 }
 
 // ============================================================================
@@ -557,21 +640,21 @@ function monitorStorage() {
   // Track localStorage changes
   const originalSetItem = localStorage.setItem;
   localStorage.setItem = function (key, value) {
-    console.log('📝 localStorage.setItem:', key);
+    debug.log('📝 localStorage.setItem:', key);
     notifyStorageChange('localStorage', 'set', key, value);
     return originalSetItem.apply(this, arguments);
   };
 
   const originalRemoveItem = localStorage.removeItem;
   localStorage.removeItem = function (key) {
-    console.log('🗑️ localStorage.removeItem:', key);
+    debug.log('🗑️ localStorage.removeItem:', key);
     notifyStorageChange('localStorage', 'remove', key);
     return originalRemoveItem.apply(this, arguments);
   };
 
   const originalClear = localStorage.clear;
   localStorage.clear = function () {
-    console.log('🗑️ localStorage.clear');
+    debug.log('🗑️ localStorage.clear');
     notifyStorageChange('localStorage', 'clear');
     return originalClear.apply(this, arguments);
   };
@@ -579,21 +662,21 @@ function monitorStorage() {
   // Track sessionStorage changes
   const originalSessionSetItem = sessionStorage.setItem;
   sessionStorage.setItem = function (key, value) {
-    console.log('📝 sessionStorage.setItem:', key);
+    debug.log('📝 sessionStorage.setItem:', key);
     notifyStorageChange('sessionStorage', 'set', key, value);
     return originalSessionSetItem.apply(this, arguments);
   };
 
   const originalSessionRemoveItem = sessionStorage.removeItem;
   sessionStorage.removeItem = function (key) {
-    console.log('🗑️ sessionStorage.removeItem:', key);
+    debug.log('🗑️ sessionStorage.removeItem:', key);
     notifyStorageChange('sessionStorage', 'remove', key);
     return originalSessionRemoveItem.apply(this, arguments);
   };
 
   const originalSessionClear = sessionStorage.clear;
   sessionStorage.clear = function () {
-    console.log('🗑️ sessionStorage.clear');
+    debug.log('🗑️ sessionStorage.clear');
     notifyStorageChange('sessionStorage', 'clear');
     return originalSessionClear.apply(this, arguments);
   };
@@ -642,7 +725,7 @@ function notifyStorageChange(storageType, action, key, value) {
     }
 
   } catch (error) {
-    console.warn('Failed to batch storage change:', error);
+    debug.warn('Failed to batch storage change:', error);
   }
 }
 
@@ -740,7 +823,7 @@ function getStorageInfo(options = {}) {
       info.localStorage.itemCount = localStorage.length;
     }
   } catch (error) {
-    console.warn('Cannot access localStorage:', error);
+    debug.warn('Cannot access localStorage:', error);
     info.localStorage.error = error.message;
   }
 
@@ -780,7 +863,7 @@ function getStorageInfo(options = {}) {
       info.sessionStorage.itemCount = sessionStorage.length;
     }
   } catch (error) {
-    console.warn('Cannot access sessionStorage:', error);
+    debug.warn('Cannot access sessionStorage:', error);
     info.sessionStorage.error = error.message;
   }
 
@@ -790,7 +873,7 @@ function getStorageInfo(options = {}) {
     info.cookies.count = cookies.length;
     info.cookies.totalSize = calculateSize(document.cookie);
   } catch (error) {
-    console.warn('Cannot access cookies:', error);
+    debug.warn('Cannot access cookies:', error);
     info.cookies.error = error.message;
   }
 
@@ -804,13 +887,13 @@ function getStorageInfo(options = {}) {
  */
 function safeSendResponse(sendResponse, data) {
   if (!isExtensionContextValid()) {
-    console.warn('⚠️ Cannot send response - extension context invalidated');
+    debug.warn('⚠️ Cannot send response - extension context invalidated');
     return;
   }
   try {
     sendResponse(data);
   } catch (error) {
-    console.warn('⚠️ Failed to send response:', error.message);
+    debug.warn('⚠️ Failed to send response:', error.message);
   }
 }
 
@@ -822,11 +905,11 @@ try {
   chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     // Check if extension context is still valid
     if (!isExtensionContextValid()) {
-      console.warn('⚠️ Received message but extension context is invalidated. Please refresh the page.');
+      debug.warn('⚠️ Received message but extension context is invalidated. Please refresh the page.');
       return false;
     }
 
-    console.log('📨 Content script received message:', message.type);
+    debug.log('📨 Content script received message:', message.type);
 
     try {
       switch (message.type) {
@@ -850,6 +933,28 @@ try {
             .then(data => safeSendResponse(sendResponse, { success: true, data }))
             .catch(error => safeSendResponse(sendResponse, { success: false, error: error.message }));
           return true; // Keep message channel open for async response
+
+        case 'GET_IDB_DBS':
+          // Get list of IndexedDB databases
+          getIndexedDBDatabases()
+            .then(data => safeSendResponse(sendResponse, { success: true, data }))
+            .catch(error => safeSendResponse(sendResponse, { success: false, error: error.message }));
+          return true;
+
+        case 'GET_IDB_STORES':
+          // Get list of object stores
+          getIndexedDBObjectStores(message.dbName)
+            .then(data => safeSendResponse(sendResponse, { success: true, data }))
+            .catch(error => safeSendResponse(sendResponse, { success: false, error: error.message }));
+          return true;
+
+        case 'DELETE_IDB_RECORD':
+          // Delete specific IndexedDB record
+          const { dbName: delDb, storeName: delStore, key: delKey } = message;
+          deleteIndexedDBRecord(delDb, delStore, delKey)
+            .then(() => safeSendResponse(sendResponse, { success: true }))
+            .catch(error => safeSendResponse(sendResponse, { success: false, error: error.message }));
+          return true;
 
         case 'CLEAR_LOCAL_STORAGE':
           try {
@@ -876,17 +981,46 @@ try {
           return true;
 
         default:
+          // Also handle action-based messages from service worker
+          if (message.action === 'clearStorage') {
+            try {
+              if (message.storageType === 'localStorage') {
+                localStorage.clear();
+              } else if (message.storageType === 'sessionStorage') {
+                sessionStorage.clear();
+              }
+              safeSendResponse(sendResponse, { success: true });
+            } catch (error) {
+              safeSendResponse(sendResponse, { success: false, error: error.message });
+            }
+            return true;
+          }
+
+          if (message.action === 'deleteStorageKey') {
+            try {
+              if (message.storageType === 'localStorage') {
+                localStorage.removeItem(message.key);
+              } else if (message.storageType === 'sessionStorage') {
+                sessionStorage.removeItem(message.key);
+              }
+              safeSendResponse(sendResponse, { success: true });
+            } catch (error) {
+              safeSendResponse(sendResponse, { success: false, error: error.message });
+            }
+            return true;
+          }
+
           safeSendResponse(sendResponse, { success: false, error: 'Unknown message type' });
           return true;
       }
     } catch (error) {
-      console.warn('⚠️ Error handling message:', error.message);
+      debug.warn('⚠️ Error handling message:', error.message);
       safeSendResponse(sendResponse, { success: false, error: error.message });
       return true;
     }
   });
 } catch (error) {
-  console.warn('⚠️ Extension context invalidated. Please refresh the page to reconnect.');
+  debug.warn('⚠️ Extension context invalidated. Please refresh the page to reconnect.');
 }
 
 /**
@@ -906,11 +1040,11 @@ function sendPageLoadInfo() {
       data: info
     }, (response) => {
       if (response?.success !== false) {
-        console.log(`✅ Page load info sent (calculation time: ${info.performance.calculationTime.toFixed(2)}ms)`);
+        debug.log(`✅ Page load info sent (calculation time: ${info.performance.calculationTime.toFixed(2)}ms)`);
       }
     });
   } catch (error) {
-    console.warn('Failed to send page load info:', error);
+    debug.warn('Failed to send page load info:', error);
   }
 }
 
@@ -943,15 +1077,15 @@ window.addEventListener('message', (event) => {
 
   // Check if it's from our web app (support both source names for compatibility)
   if (event.data && (event.data.source === 'storageinsight-webapp' || event.data.source === 'insight-webapp')) {
-    console.log('📨 Web app message received:', event.data);
+    debug.log('📨 Web app message received:', event.data);
 
     // Handle REQUEST_DATA - trigger a new scan and send data back
     if (event.data.type === 'REQUEST_DATA') {
-      console.log('🔄 Web app requested data refresh');
+      debug.log('🔄 Web app requested data refresh');
 
       // Request fresh scan from background script
       safeSendMessage({ type: 'SCAN_STORAGE' }, (response) => {
-        console.log('📊 Scan response received:', response?.success);
+        debug.log('📊 Scan response received:', response?.success);
 
         if (response && response.success && response.data) {
           // Send scan data back to web app
@@ -960,9 +1094,9 @@ window.addEventListener('message', (event) => {
             type: 'SCAN_DATA',
             payload: response.data,
           }, window.location.origin);
-          console.log('✅ Scan data sent to web app');
+          debug.log('✅ Scan data sent to web app');
         } else {
-          console.warn('❌ Scan failed or no data:', response?.error);
+          debug.warn('❌ Scan failed or no data:', response?.error);
           // Send error response
           window.postMessage({
             source: 'storageinsight-extension',
@@ -979,7 +1113,7 @@ window.addEventListener('message', (event) => {
       safeSendMessage({
         type: event.data.action,
       }, (response) => {
-        console.log('✅ Action response:', response);
+        debug.log('✅ Action response:', response);
 
         // Post response back to web app
         window.postMessage({
@@ -1027,9 +1161,9 @@ function announceExtension() {
       type: 'EXTENSION_READY',
       version: '1.0.0',
     }, window.location.origin);
-    console.log('📢 Extension announced to web app at', window.location.origin);
+    debug.log('📢 Extension announced to web app at', window.location.origin);
   } catch (error) {
-    console.warn('⚠️ Failed to announce extension:', error.message);
+    debug.warn('⚠️ Failed to announce extension:', error.message);
   }
 }
 
@@ -1042,6 +1176,6 @@ setTimeout(() => {
   if (isExtensionContextValid()) announceExtension();
 }, 3000);
 
-console.log('✅ StorageInsight content script initialized with performance optimizations');
-console.log('📊 Performance features: Batching (1msg/sec), Pagination (100 items/page), Efficient serialization (<10ms)');
-console.log('🔗 Web app communication enabled for', window.location.origin);
+debug.log('✅ StorageInsight content script initialized with performance optimizations');
+debug.log('📊 Performance features: Batching (1msg/sec), Pagination (100 items/page), Efficient serialization (<10ms)');
+debug.log('🔗 Web app communication enabled for', window.location.origin);

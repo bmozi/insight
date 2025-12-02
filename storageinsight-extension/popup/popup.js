@@ -3,6 +3,17 @@
  * Handles the extension popup UI with collapsible sections
  */
 
+// Debug utility (inline for non-module scripts)
+let _debugEnabled = false;
+try {
+  chrome.storage.local.get(['debugMode'], (r) => { _debugEnabled = r?.debugMode || false; });
+} catch (e) { /* ignore */ }
+const debug = {
+  log: (...args) => { if (_debugEnabled) debug.log(...args); },
+  warn: (...args) => { debug.warn(...args); },
+  error: (...args) => { debug.error(...args); }
+};
+
 // DOM elements
 const scanBtn = document.getElementById('scanBtn');
 const scanLoader = document.getElementById('scanLoader');
@@ -39,7 +50,7 @@ let currentScanData = null;
  * Initialize popup
  */
 async function init() {
-  console.log('🚀 Popup initializing...');
+  debug.log('🚀 Popup initializing...');
 
   // Attach event listeners
   scanBtn.addEventListener('click', handleScan);
@@ -83,7 +94,7 @@ async function loadCachedData() {
 
     if (result.lastScanData && result.lastScanTime) {
       // Always show cached data immediately
-      console.log('📦 Loading cached scan data from:', new Date(result.lastScanTime).toLocaleString());
+      debug.log('📦 Loading cached scan data from:', new Date(result.lastScanTime).toLocaleString());
       currentScanData = result.lastScanData;
       displayResults(result.lastScanData);
 
@@ -95,7 +106,7 @@ async function loadCachedData() {
       }
     }
   } catch (error) {
-    console.error('Error loading cached data:', error);
+    debug.error('Error loading cached data:', error);
   }
 }
 
@@ -103,7 +114,7 @@ async function loadCachedData() {
  * Handle scan button click
  */
 async function handleScan() {
-  console.log('🔍 Starting scan...');
+  debug.log('🔍 Starting scan...');
 
   // Show loading state
   scanBtn.style.display = 'none';
@@ -123,7 +134,7 @@ async function handleScan() {
     const response = await Promise.race([scanPromise, timeoutPromise]);
 
     if (response.success) {
-      console.log('✅ Scan complete:', response.data);
+      debug.log('✅ Scan complete:', response.data);
       currentScanData = response.data;
 
       // Cache the results
@@ -141,7 +152,7 @@ async function handleScan() {
       throw new Error(response.error || 'Scan failed');
     }
   } catch (error) {
-    console.error('❌ Scan error:', error);
+    debug.error('❌ Scan error:', error);
     showStatus('Scan failed: ' + error.message, 'error');
   } finally {
     // Hide loading state
@@ -156,7 +167,7 @@ async function handleScan() {
 function displayResults(data) {
   // Use pre-computed privacy analysis from service worker
   const privacyAnalysis = data._privacyAnalysis || null;
-  console.log('📊 Privacy Analysis:', privacyAnalysis);
+  debug.log('📊 Privacy Analysis:', privacyAnalysis);
 
   // Update basic metrics
   totalDomainsEl.textContent = data.uniqueDomains || 0;
@@ -295,7 +306,7 @@ function displayDetailedAnalysis(analysis) {
  */
 async function handleRecommendationAction(event) {
   const action = event.target.dataset.action;
-  console.log('🎯 Executing recommendation action:', action);
+  debug.log('🎯 Executing recommendation action:', action);
 
   if (!action) return;
 
@@ -311,7 +322,7 @@ async function handleRecommendationAction(event) {
 
   const actionConfig = actionMap[action];
   if (!actionConfig) {
-    console.warn('⚠️ Unknown action:', action);
+    debug.warn('⚠️ Unknown action:', action);
     return;
   }
 
@@ -331,7 +342,7 @@ async function handleRecommendationAction(event) {
 
     if (response.success) {
       const count = response.data?.removedCount || 0;
-      console.log(`✅ Action complete: ${count} items removed`);
+      debug.log(`✅ Action complete: ${count} items removed`);
       showStatus(`Success! Removed ${count} item${count !== 1 ? 's' : ''}`, 'success');
 
       // Refresh data after a short delay
@@ -340,7 +351,7 @@ async function handleRecommendationAction(event) {
       throw new Error(response.error || 'Action failed');
     }
   } catch (error) {
-    console.error('❌ Action error:', error);
+    debug.error('❌ Action error:', error);
     showStatus('Action failed: ' + error.message, 'error');
 
     // Re-enable button
@@ -354,7 +365,7 @@ async function handleRecommendationAction(event) {
  */
 async function handleHighRiskAction(event) {
   const action = event.target.dataset.action;
-  console.log('🎯 Executing high-risk action:', action);
+  debug.log('🎯 Executing high-risk action:', action);
 
   if (!action) return;
 
@@ -367,7 +378,7 @@ async function handleHighRiskAction(event) {
 
   const confirmMsg = confirmMap[action];
   if (!confirmMsg) {
-    console.warn('⚠️ Unknown action:', action);
+    debug.warn('⚠️ Unknown action:', action);
     return;
   }
 
@@ -388,7 +399,7 @@ async function handleHighRiskAction(event) {
 
     if (response.success) {
       const count = response.data?.removedCount || 0;
-      console.log(`✅ Action complete: ${count} items removed`);
+      debug.log(`✅ Action complete: ${count} items removed`);
       showStatus(`Success! Removed ${count} item${count !== 1 ? 's' : ''}`, 'success');
 
       // Refresh data after a short delay
@@ -397,7 +408,7 @@ async function handleHighRiskAction(event) {
       throw new Error(response.error || 'Action failed');
     }
   } catch (error) {
-    console.error('❌ Action error:', error);
+    debug.error('❌ Action error:', error);
     showStatus('Action failed: ' + error.message, 'error');
 
     // Re-enable button
@@ -414,7 +425,7 @@ async function handleClearTracking() {
     return;
   }
 
-  console.log('🗑️ Clearing tracking cookies...');
+  debug.log('🗑️ Clearing tracking cookies...');
 
   try {
     const response = await chrome.runtime.sendMessage({
@@ -423,7 +434,7 @@ async function handleClearTracking() {
 
     if (response.success) {
       const count = response.data.removedCount;
-      console.log(`✅ Removed ${count} tracking cookies`);
+      debug.log(`✅ Removed ${count} tracking cookies`);
       showStatus(`Removed ${count} tracking cookie${count !== 1 ? 's' : ''}`, 'success');
 
       // Refresh data after a short delay
@@ -432,7 +443,7 @@ async function handleClearTracking() {
       throw new Error(response.error || 'Failed to clear tracking cookies');
     }
   } catch (error) {
-    console.error('❌ Clear tracking error:', error);
+    debug.error('❌ Clear tracking error:', error);
     showStatus('Failed to clear tracking cookies', 'error');
   }
 }
@@ -441,7 +452,7 @@ async function handleClearTracking() {
  * Handle export button click
  */
 async function handleExport() {
-  console.log('📤 Exporting data...');
+  debug.log('📤 Exporting data...');
 
   try {
     const response = await chrome.runtime.sendMessage({
@@ -470,7 +481,7 @@ async function handleExport() {
       throw new Error(response.error || 'Export failed');
     }
   } catch (error) {
-    console.error('❌ Export error:', error);
+    debug.error('❌ Export error:', error);
     showStatus('Failed to export data', 'error');
   }
 }
@@ -530,4 +541,4 @@ if (document.readyState === 'loading') {
   init();
 }
 
-console.log('✅ Popup script loaded');
+debug.log('✅ Popup script loaded');

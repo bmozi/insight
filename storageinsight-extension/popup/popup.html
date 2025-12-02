@@ -11,193 +11,870 @@
   <div class="popup-container">
     <!-- Header -->
     <header class="header">
-      <div class="logo">
+      <div class="logo" id="logoHome" role="button" tabindex="0" title="Go to Dashboard">
         <svg class="logo-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
         </svg>
         <h1>Insight</h1>
       </div>
-      <button class="settings-btn" id="settingsBtn" title="Settings">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="12" cy="12" r="3"></circle>
-          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
-        </svg>
-      </button>
+      <div class="header-actions">
+        <button class="header-btn info-btn" id="infoBtn" title="Learn About Privacy">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+          </svg>
+        </button>
+        <button class="header-btn settings-btn" id="settingsBtn" title="Settings">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+          </svg>
+        </button>
+      </div>
     </header>
 
-    <!-- Scan Button -->
-    <div class="scan-section">
-      <button class="scan-btn" id="scanBtn">
-        <svg class="scan-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <circle cx="11" cy="11" r="8"></circle>
-          <path d="m21 21-4.35-4.35"></path>
-        </svg>
-        <span class="scan-text">Scan Storage</span>
-      </button>
-      <div class="scan-loader" id="scanLoader">
-        <div class="spinner"></div>
-        <span>Scanning...</span>
-      </div>
-    </div>
+    <!-- Page Container -->
+    <div class="pages-container">
 
-    <!-- Compact Metrics Row (5 metrics in single row) -->
-    <div class="metrics" id="metrics">
-      <!-- 1. Total Cookies -->
-      <div class="metric-card">
-        <div class="metric-icon cookies-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="12" cy="12" r="10"></circle>
-            <circle cx="8" cy="9" r="1.5" fill="currentColor"></circle>
-            <circle cx="15" cy="8" r="1" fill="currentColor"></circle>
-            <circle cx="10" cy="14" r="1.5" fill="currentColor"></circle>
-            <circle cx="16" cy="13" r="1" fill="currentColor"></circle>
-          </svg>
+      <!-- ==================== MAIN PAGE ==================== -->
+      <div class="page active" data-page="main">
+        <!-- Scan Button -->
+        <div class="scan-section">
+          <button class="scan-btn" id="scanBtn">
+            <svg class="scan-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="8"></circle>
+              <path d="m21 21-4.35-4.35"></path>
+            </svg>
+            <span class="scan-text">Scan Storage</span>
+          </button>
+          <div class="scan-loader" id="scanLoader">
+            <div class="spinner"></div>
+            <span>Scanning...</span>
+          </div>
         </div>
-        <div class="metric-content">
-          <div class="metric-value" id="totalCookies">—</div>
-          <div class="metric-label">Cookies</div>
-        </div>
-      </div>
 
-      <!-- 2. Tracking Cookies -->
-      <div class="metric-card">
-        <div class="metric-icon tracker-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="12" cy="12" r="10"></circle>
-            <circle cx="12" cy="12" r="6"></circle>
-            <circle cx="12" cy="12" r="2"></circle>
-          </svg>
-        </div>
-        <div class="metric-content">
-          <div class="metric-value" id="trackingCookies">—</div>
-          <div class="metric-label">Tracking</div>
-        </div>
-      </div>
+        <!-- Compact Metrics Row (5 metrics in single row) - Now Clickable -->
+        <div class="metrics" id="metrics">
+          <!-- 1. Total Cookies -->
+          <div class="metric-card clickable" data-navigate="cookies" role="button" tabindex="0">
+            <div class="metric-icon cookies-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 2a10 10 0 1 0 10 10 4 4 0 0 1-5-5 4 4 0 0 1-5-5"></path>
+                <path d="M8.5 8.5v.01"></path>
+                <path d="M16 15.5v.01"></path>
+                <path d="M12 12v.01"></path>
+                <path d="M11 17v.01"></path>
+                <path d="M7 14v.01"></path>
+              </svg>
+            </div>
+            <div class="metric-content">
+              <div class="metric-value" id="totalCookies">—</div>
+              <div class="metric-label">Cookies</div>
+            </div>
+          </div>
 
-      <!-- 3. Domains -->
-      <div class="metric-card">
-        <div class="metric-icon domain-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="12" cy="12" r="10"></circle>
-            <line x1="2" y1="12" x2="22" y2="12"></line>
-            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
-          </svg>
-        </div>
-        <div class="metric-content">
-          <div class="metric-value" id="totalDomains">—</div>
-          <div class="metric-label">Domains</div>
-        </div>
-      </div>
+          <!-- 2. Tracking Cookies -->
+          <div class="metric-card clickable" data-navigate="tracking" role="button" tabindex="0">
+            <div class="metric-icon tracker-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <circle cx="12" cy="12" r="6"></circle>
+                <circle cx="12" cy="12" r="2"></circle>
+              </svg>
+            </div>
+            <div class="metric-content">
+              <div class="metric-value" id="trackingCookies">—</div>
+              <div class="metric-label">Tracking</div>
+            </div>
+          </div>
 
-      <!-- 4. Total Storage -->
-      <div class="metric-card">
-        <div class="metric-icon storage-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <ellipse cx="12" cy="5" rx="9" ry="3"></ellipse>
-            <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path>
-          </svg>
+          <!-- 3. Domains -->
+          <div class="metric-card clickable" data-navigate="domains" role="button" tabindex="0">
+            <div class="metric-icon domain-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="2" y1="12" x2="22" y2="12"></line>
+                <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+              </svg>
+            </div>
+            <div class="metric-content">
+              <div class="metric-value" id="totalDomains">—</div>
+              <div class="metric-label">Domains</div>
+            </div>
+          </div>
+
+          <!-- 4. Total Storage -->
+          <div class="metric-card clickable" data-navigate="storage" role="button" tabindex="0">
+            <div class="metric-icon storage-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <ellipse cx="12" cy="5" rx="9" ry="3"></ellipse>
+                <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path>
+              </svg>
+            </div>
+            <div class="metric-content">
+              <div class="metric-value" id="totalStorage">—</div>
+              <div class="metric-label">Storage</div>
+            </div>
+          </div>
+
+          <!-- 5. Privacy Score (Prominent) -->
+          <div class="metric-card privacy-card clickable" data-navigate="score" role="button" tabindex="0">
+            <div class="metric-icon shield-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+              </svg>
+            </div>
+            <div class="metric-content">
+              <div class="metric-value" id="privacyScore">—</div>
+              <div class="metric-label">Score</div>
+            </div>
+          </div>
         </div>
-        <div class="metric-content">
-          <div class="metric-value" id="totalStorage">—</div>
-          <div class="metric-label">Storage</div>
-        </div>
-      </div>
 
-      <!-- 5. Privacy Score (Prominent) -->
-      <div class="metric-card privacy-card">
-        <div class="metric-icon shield-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-          </svg>
-        </div>
-        <div class="metric-content">
-          <div class="metric-value" id="privacyScore">—</div>
-          <div class="metric-label">Score</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Quick Actions -->
-    <div class="actions">
-      <button class="action-btn clear-btn" id="clearTrackingBtn">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-        </svg>
-        <span>Clear Tracking</span>
-      </button>
-
-      <button class="action-btn export-btn" id="exportBtn">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"></path>
-        </svg>
-        <span>Export Data</span>
-      </button>
-    </div>
-
-    <!-- Status Message -->
-    <div class="status-message" id="statusMessage"></div>
-
-    <!-- Collapsible Analysis Section -->
-    <div class="analysis-section" id="analysisSection" style="display: none;">
-      <!-- Recommendations (Collapsible) -->
-      <div class="analysis-card" id="recommendationsCard">
-        <div class="analysis-header" id="recommendationsHeader" role="button" tabindex="0" aria-expanded="false">
-          <div class="analysis-title">
+        <!-- Quick Actions -->
+        <div class="actions">
+          <button class="action-btn clear-btn" id="clearTrackingBtn">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+              <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
             </svg>
-            <span>Recommendations</span>
-            <span class="analysis-badge" id="recommendationsCount">0</span>
+            <span>Clear Tracking</span>
+          </button>
+
+          <button class="action-btn export-btn" id="exportBtn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"></path>
+            </svg>
+            <span>Export Data</span>
+          </button>
+        </div>
+
+        <!-- Status Message -->
+        <div class="status-message" id="statusMessage"></div>
+
+        <!-- Collapsible Analysis Section -->
+        <div class="analysis-section" id="analysisSection" style="display: none;">
+          <!-- Recommendations (Collapsible) -->
+          <div class="analysis-card" id="recommendationsCard">
+            <div class="analysis-header" id="recommendationsHeader" role="button" tabindex="0" aria-expanded="false">
+              <div class="analysis-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                </svg>
+                <span>Recommendations</span>
+                <span class="analysis-badge" id="recommendationsCount">0</span>
+              </div>
+              <div class="analysis-toggle">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+              </div>
+            </div>
+            <div class="analysis-content">
+              <div class="analysis-content-inner">
+                <div id="recommendations" class="recommendations-list">
+                  <p class="no-data">Run a scan to see recommendations</p>
+                </div>
+              </div>
+            </div>
           </div>
-          <div class="analysis-toggle">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <polyline points="6 9 12 15 18 9"></polyline>
+
+          <!-- High Risk Items (Collapsible) -->
+          <div class="analysis-card" id="highRiskCard">
+            <div class="analysis-header" id="highRiskHeader" role="button" tabindex="0" aria-expanded="false">
+              <div class="analysis-title high-risk-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="alert-icon">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <line x1="12" y1="8" x2="12" y2="12"></line>
+                  <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                </svg>
+                <span>High Risk Items</span>
+                <span class="analysis-badge" id="highRiskCount">0</span>
+              </div>
+              <div class="analysis-toggle">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+              </div>
+            </div>
+            <div class="analysis-content">
+              <div class="analysis-content-inner">
+                <div id="highRiskItems" class="high-risk-list">
+                  <p class="no-data">No high-risk items detected</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ==================== COOKIES PAGE ==================== -->
+      <div class="page" data-page="cookies">
+        <div class="page-header-minimal">
+          <button class="back-btn" data-navigate="main">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M19 12H5M12 19l-7-7 7-7"></path>
             </svg>
+          </button>
+          <span class="page-header-title">Cookies</span>
+        </div>
+        <div class="page-content cookie-browser-content">
+          <!-- Search and Filters -->
+          <div class="cookie-browser-controls">
+            <div class="cookie-search">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8"></circle>
+                <path d="m21 21-4.35-4.35"></path>
+              </svg>
+              <input type="text" id="cookieSearchInput" placeholder="Search cookies..." />
+            </div>
+            <div class="cookie-filters">
+              <select id="cookieCategoryFilter">
+                <option value="all">All Categories</option>
+                <option value="analytics">Analytics</option>
+                <option value="advertising">Advertising</option>
+                <option value="social">Social</option>
+                <option value="fingerprinting">Fingerprinting</option>
+                <option value="essential">Essential</option>
+                <option value="unknown">Unknown</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Stats Bar -->
+          <div class="cookie-stats-bar">
+            <span class="cookie-stats-count"><span id="cookiesPageFiltered">—</span> of <span id="cookiesPageTotal">—</span> cookies</span>
+            <span class="cookie-stats-selected" id="cookiesSelectedCount" style="display: none;">0 selected</span>
+          </div>
+
+          <!-- Bulk Actions (when cookies selected) -->
+          <div class="cookie-bulk-actions" id="cookieBulkActions" style="display: none;">
+            <button class="bulk-delete-btn" id="bulkDeleteCookiesBtn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+              </svg>
+              Delete Selected
+            </button>
+          </div>
+
+          <!-- Cookie Table -->
+          <div class="cookie-table-container">
+            <!-- Table Header -->
+            <div class="cookie-table-header">
+              <div class="cookie-col cookie-col-check">
+                <input type="checkbox" id="cookieSelectAll" class="cookie-checkbox" title="Select all" />
+              </div>
+              <div class="cookie-col cookie-col-name">Name</div>
+              <div class="cookie-col cookie-col-domain">Domain</div>
+              <div class="cookie-col cookie-col-category">Category</div>
+              <div class="cookie-col cookie-col-expires">Expires</div>
+              <div class="cookie-col cookie-col-secure">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" title="Secure">
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                </svg>
+              </div>
+              <div class="cookie-col cookie-col-httponly">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" title="HttpOnly">
+                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                </svg>
+              </div>
+              <div class="cookie-col cookie-col-actions"></div>
+            </div>
+            <!-- Cookie List -->
+            <div class="cookie-browser-list" id="cookiesPageList">
+              <p class="no-data">Run a scan to see cookie details</p>
+            </div>
+          </div>
+
+          <!-- Pagination -->
+          <div class="cookie-pagination" id="cookiePagination" style="display: none;">
+            <button class="pagination-btn" id="cookiePrevPage">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M15 18l-6-6 6-6"></path>
+              </svg>
+            </button>
+            <span class="pagination-info">Page <span id="cookieCurrentPage">1</span> of <span id="cookieTotalPages">1</span></span>
+            <button class="pagination-btn" id="cookieNextPage">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M9 18l6-6-6-6"></path>
+              </svg>
+            </button>
           </div>
         </div>
-        <div class="analysis-content">
-          <div class="analysis-content-inner">
-            <div id="recommendations" class="recommendations-list">
-              <p class="no-data">Run a scan to see recommendations</p>
+      </div>
+
+      <!-- ==================== TRACKING PAGE ==================== -->
+      <div class="page" data-page="tracking">
+        <div class="page-header-minimal">
+          <button class="back-btn" data-navigate="main">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M19 12H5M12 19l-7-7 7-7"></path>
+            </svg>
+          </button>
+          <span class="page-header-title">Tracking</span>
+        </div>
+        <div class="page-content tracking-page-content">
+          <!-- Stats Row -->
+          <div class="tracking-stats-row">
+            <div class="tracking-stat-card">
+              <span class="tracking-stat-value" id="trackingPageTotal">—</span>
+              <span class="tracking-stat-label">Cookies</span>
+            </div>
+            <div class="tracking-stat-card companies">
+              <span class="tracking-stat-value" id="trackingCompaniesTotal">—</span>
+              <span class="tracking-stat-label">Companies</span>
+            </div>
+          </div>
+
+          <div class="page-description">
+            <p>Companies tracking your activity across websites to build a profile of your interests.</p>
+          </div>
+
+          <div class="page-actions">
+            <button class="page-action-btn danger" id="clearAllTrackingBtn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+              </svg>
+              Clear All Tracking
+            </button>
+          </div>
+
+          <!-- Tracking Companies List -->
+          <div class="tracking-companies-list" id="trackingPageList">
+            <p class="no-data">Run a scan to see tracking companies</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== DOMAINS PAGE ==================== -->
+      <div class="page" data-page="domains">
+        <div class="page-header-minimal">
+          <button class="back-btn" data-navigate="main">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M19 12H5M12 19l-7-7 7-7"></path>
+            </svg>
+          </button>
+          <span class="page-header-title">Domains</span>
+        </div>
+        <div class="page-content domain-explorer-content">
+          <!-- Summary Stats Row -->
+          <div class="domain-stats-row">
+            <div class="domain-stat-card">
+              <span class="domain-stat-value" id="domainsPageTotal">—</span>
+              <span class="domain-stat-label">Domains</span>
+            </div>
+            <div class="domain-stat-card companies">
+              <span class="domain-stat-value" id="domainsCompanies">—</span>
+              <span class="domain-stat-label">Companies</span>
+            </div>
+            <div class="domain-stat-card high-risk">
+              <span class="domain-stat-value" id="domainsHighRisk">—</span>
+              <span class="domain-stat-label">High Risk</span>
+            </div>
+          </div>
+
+          <!-- Search and Filters -->
+          <div class="domain-controls">
+            <div class="domain-search">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8"></circle>
+                <path d="m21 21-4.35-4.35"></path>
+              </svg>
+              <input type="text" id="domainSearchInput" placeholder="Search domains..." />
+            </div>
+            <select id="domainRiskFilter">
+              <option value="all">All Risk</option>
+              <option value="critical">Critical</option>
+              <option value="high">High</option>
+              <option value="medium">Medium</option>
+              <option value="low">Low</option>
+            </select>
+          </div>
+
+          <!-- Stats Bar -->
+          <div class="domain-stats-bar">
+            <span><span id="domainsFiltered">—</span> of <span id="domainsTotalCount">—</span> companies</span>
+          </div>
+
+          <!-- Company List -->
+          <div class="domain-explorer-list" id="domainsPageList">
+            <p class="no-data">Run a scan to see company details</p>
+          </div>
+
+          <!-- Pagination -->
+          <div class="domain-pagination" id="domainPagination" style="display: none;">
+            <button class="pagination-btn" id="domainPrevPage">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M15 18l-6-6 6-6"></path>
+              </svg>
+            </button>
+            <span class="pagination-info">Page <span id="domainCurrentPage">1</span> of <span id="domainTotalPages">1</span></span>
+            <button class="pagination-btn" id="domainNextPage">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M9 18l6-6-6-6"></path>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== STORAGE PAGE ==================== -->
+      <div class="page" data-page="storage">
+        <div class="page-header-minimal">
+          <button class="back-btn" data-navigate="main">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M19 12H5M12 19l-7-7 7-7"></path>
+            </svg>
+          </button>
+          <span class="page-header-title">Storage</span>
+        </div>
+        <div class="page-content storage-page-content">
+          <!-- Storage Quota Bar -->
+          <div class="storage-quota-bar" id="storageQuotaBar">
+            <div class="quota-header">
+              <span class="quota-label">Storage Quota</span>
+              <span class="quota-values"><span id="storageUsed">—</span> / <span id="storageQuota">—</span></span>
+            </div>
+            <div class="quota-progress">
+              <div class="quota-progress-fill" id="quotaProgressFill" style="width: 0%"></div>
+            </div>
+            <span class="quota-percent" id="quotaPercent">0% used</span>
+          </div>
+
+          <!-- Storage Type Tabs -->
+          <div class="storage-tabs" role="tablist">
+            <button class="storage-tab active" data-storage-type="localStorage" role="tab" aria-selected="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="4" y="4" width="16" height="16" rx="2"></rect>
+                <path d="M4 12h16"></path>
+              </svg>
+              <span>Local</span>
+              <span class="tab-count" id="localStorageCount">0</span>
+            </button>
+            <button class="storage-tab" data-storage-type="sessionStorage" role="tab" aria-selected="false">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="4" y="4" width="16" height="16" rx="2"></rect>
+                <path d="M4 12h16"></path>
+              </svg>
+              <span>Session</span>
+              <span class="tab-count" id="sessionStorageCount">0</span>
+            </button>
+            <button class="storage-tab" data-storage-type="indexedDB" role="tab" aria-selected="false">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <ellipse cx="12" cy="5" rx="9" ry="3"></ellipse>
+                <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path>
+                <path d="M3 12c0 1.66 4 3 9 3s9-1.34 9-3"></path>
+              </svg>
+              <span>IndexedDB</span>
+              <span class="tab-count" id="indexedDBCount">0</span>
+            </button>
+          </div>
+
+          <!-- Search and Sort Controls -->
+          <div class="storage-controls">
+            <div class="storage-search">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8"></circle>
+                <path d="m21 21-4.35-4.35"></path>
+              </svg>
+              <input type="text" id="storageSearchInput" placeholder="Search by key name..." />
+              <button class="search-clear-btn" id="storageSearchClear" style="display: none;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+              </button>
+            </div>
+            <select id="storageSortSelect">
+              <option value="size">Size</option>
+              <option value="name">Name</option>
+              <option value="keys">Key Count</option>
+            </select>
+          </div>
+
+          <!-- Storage Domain List -->
+          <div class="storage-domain-list" id="storagePageList">
+            <p class="no-data">Run a scan to see storage details</p>
+          </div>
+
+          <!-- IndexedDB Browser (Hidden by default) -->
+          <div class="idb-browser" id="idbBrowser" style="display: none;">
+            <div class="idb-header">
+               <button class="back-btn-small" id="idbBackBtn" style="display: none;">
+                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+                   <path d="M15 18l-6-6 6-6"></path>
+                 </svg>
+                 Back
+               </button>
+               <div class="idb-breadcrumbs" id="idbBreadcrumbs">
+                 <span class="crumb active" data-level="dbs">Databases</span>
+               </div>
+            </div>
+            <div class="idb-content" id="idbContent">
+              <!-- Content injected here -->
+            </div>
+            <div class="idb-pagination" id="idbPagination" style="display: none;">
+                <button class="pagination-btn" id="idbPrevPage">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M15 18l-6-6 6-6"></path>
+                  </svg>
+                </button>
+                <span class="pagination-info">Page <span id="idbCurrentPage">1</span></span>
+                <button class="pagination-btn" id="idbNextPage">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M9 18l6-6-6-6"></path>
+                  </svg>
+                </button>
+            </div>
+          </div>
+
+          <!-- Footer Stats -->
+          <div class="storage-footer" id="storageFooter">
+            <span><strong id="storageDomainsCount">0</strong> domains</span>
+            <span><strong id="storageKeysCount">0</strong> keys</span>
+            <span><strong id="storageTotalSize">0 B</strong> total</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== PRIVACY SCORE PAGE ==================== -->
+      <div class="page" data-page="score">
+        <div class="page-header-minimal">
+          <button class="back-btn" data-navigate="main">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M19 12H5M12 19l-7-7 7-7"></path>
+            </svg>
+          </button>
+          <span class="page-header-title">Privacy Score</span>
+        </div>
+        <div class="page-content score-page-content">
+          <!-- Score Display Card -->
+          <div class="score-display-card" id="scoreDisplayCard">
+            <div class="score-display-value">
+              <span class="score-number" id="scorePageTotal">—</span>
+              <span class="score-max">/100</span>
+            </div>
+            <div class="score-display-label" id="scoreDisplayLabel">Run a scan to check your privacy</div>
+          </div>
+
+          <!-- Score Breakdown -->
+          <div class="score-section">
+            <h3 class="score-section-title">Score Breakdown</h3>
+            <div class="score-breakdown-list" id="breakdownList">
+              <div class="breakdown-empty">
+                <p>Run a scan to see what's affecting your score</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Recent Activity -->
+          <div class="score-section">
+            <h3 class="score-section-title">Recent Scans</h3>
+            <div class="recent-scans-list" id="recentScansList">
+              <div class="breakdown-empty">
+                <p>No scan history yet</p>
+              </div>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- High Risk Items (Collapsible) -->
-      <div class="analysis-card" id="highRiskCard">
-        <div class="analysis-header" id="highRiskHeader" role="button" tabindex="0" aria-expanded="false">
-          <div class="analysis-title high-risk-title">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="alert-icon">
-              <circle cx="12" cy="12" r="10"></circle>
-              <line x1="12" y1="8" x2="12" y2="12"></line>
-              <line x1="12" y1="16" x2="12.01" y2="16"></line>
+      <!-- ==================== SETTINGS PAGE ==================== -->
+      <div class="page" data-page="settings">
+        <div class="page-header-minimal">
+          <button class="back-btn" data-navigate="main">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M19 12H5M12 19l-7-7 7-7"></path>
             </svg>
-            <span>High Risk Items</span>
-            <span class="analysis-badge" id="highRiskCount">0</span>
+          </button>
+          <span class="page-header-title">Settings</span>
+        </div>
+        <div class="page-content settings-content">
+          <!-- Scanning Section -->
+          <div class="settings-section">
+            <div class="settings-section-title">Scanning</div>
+
+            <div class="settings-item">
+              <div class="settings-item-info">
+                <div class="settings-item-label">Auto-Scan</div>
+                <div class="settings-item-desc">Automatically scan browser storage</div>
+              </div>
+              <label class="toggle-switch">
+                <input type="checkbox" id="settingsAutoScan">
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+
+            <div class="settings-item">
+              <div class="settings-item-info">
+                <div class="settings-item-label">Scan Frequency</div>
+              </div>
+              <select id="settingsScanFrequency" class="settings-dropdown">
+                <option value="manual">Manual</option>
+                <option value="daily">Daily</option>
+                <option value="weekly">Weekly</option>
+              </select>
+            </div>
           </div>
-          <div class="analysis-toggle">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <polyline points="6 9 12 15 18 9"></polyline>
-            </svg>
+
+          <!-- Notifications Section -->
+          <div class="settings-section">
+            <div class="settings-section-title">Notifications</div>
+
+            <div class="settings-item">
+              <div class="settings-item-info">
+                <div class="settings-item-label">Enable Notifications</div>
+                <div class="settings-item-desc">Get notified about privacy changes</div>
+              </div>
+              <label class="toggle-switch">
+                <input type="checkbox" id="settingsNotifications">
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Privacy Section -->
+          <div class="settings-section">
+            <div class="settings-section-title">Privacy</div>
+
+            <div class="settings-item">
+              <div class="settings-item-info">
+                <div class="settings-item-label">Score Threshold</div>
+                <div class="settings-item-desc">Notify when score falls below</div>
+              </div>
+              <select id="settingsPrivacyThreshold" class="settings-dropdown">
+                <option value="90">90 - Very High</option>
+                <option value="80">80 - High</option>
+                <option value="70">70 - Medium</option>
+                <option value="60">60 - Low</option>
+                <option value="50">50 - Very Low</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Advanced Section -->
+          <div class="settings-section">
+            <div class="settings-section-title">Advanced</div>
+
+            <div class="settings-item">
+              <div class="settings-item-info">
+                <div class="settings-item-label">Debug Mode</div>
+                <div class="settings-item-desc">Enable verbose console logging</div>
+              </div>
+              <label class="toggle-switch">
+                <input type="checkbox" id="settingsDebugMode">
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="settings-actions">
+            <button class="btn-save" id="settingsSaveBtn">Save Settings</button>
+            <button class="btn-reset" id="settingsResetBtn">Reset</button>
           </div>
         </div>
-        <div class="analysis-content">
-          <div class="analysis-content-inner">
-            <div id="highRiskItems" class="high-risk-list">
-              <p class="no-data">No high-risk items detected</p>
+      </div>
+
+      <!-- ==================== LEARN MORE PAGE ==================== -->
+      <div class="page" data-page="learn">
+        <div class="page-header-minimal">
+          <button class="back-btn" data-navigate="main">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M19 12H5M12 19l-7-7 7-7"></path>
+            </svg>
+          </button>
+          <span class="page-header-title">Online Privacy</span>
+        </div>
+        <div class="page-content learn-content">
+          <!-- Stats Row -->
+          <div class="learn-hero-stats">
+            <div class="learn-stat-card">
+              <div class="learn-stat-value orange">80%</div>
+              <div class="learn-stat-label">Sites track you</div>
+            </div>
+            <div class="learn-stat-card">
+              <div class="learn-stat-value green">$200B+</div>
+              <div class="learn-stat-label">Ad industry</div>
+            </div>
+            <div class="learn-stat-card">
+              <div class="learn-stat-value pink">2+ yrs</div>
+              <div class="learn-stat-label">Cookie lifespan</div>
+            </div>
+            <div class="learn-stat-card">
+              <div class="learn-stat-value blue">1000s</div>
+              <div class="learn-stat-label">Data points</div>
+            </div>
+          </div>
+
+          <!-- What are Cookies -->
+          <div class="learn-section">
+            <h3>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 2a10 10 0 1 0 10 10 4 4 0 0 1-5-5 4 4 0 0 1-5-5"></path>
+                <path d="M8.5 8.5v.01"></path><path d="M16 15.5v.01"></path>
+              </svg>
+              What Are Cookies?
+            </h3>
+            <p>Cookies are small text files (typically less than 4KB) that websites store in your browser. They contain data like preferences, login tokens, and tracking identifiers.</p>
+            <div class="cookie-types-grid">
+              <div class="cookie-type-card session">
+                <div class="cookie-type-header">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                  <span class="cookie-type-name">Session</span>
+                </div>
+                <p class="cookie-type-desc">Deleted when you close browser</p>
+              </div>
+              <div class="cookie-type-card persistent">
+                <div class="cookie-type-header">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                  <span class="cookie-type-name">Persistent</span>
+                </div>
+                <p class="cookie-type-desc">Remain for set period</p>
+              </div>
+              <div class="cookie-type-card first-party">
+                <div class="cookie-type-header">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+                  <span class="cookie-type-name">First-Party</span>
+                </div>
+                <p class="cookie-type-desc">Set by site you're visiting</p>
+              </div>
+              <div class="cookie-type-card third-party">
+                <div class="cookie-type-header">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg>
+                  <span class="cookie-type-name">Third-Party</span>
+                </div>
+                <p class="cookie-type-desc">External tracking domains</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Cookie Categories -->
+          <div class="learn-section">
+            <h3>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect>
+                <rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect>
+              </svg>
+              Cookie Categories
+            </h3>
+            <div class="learn-items">
+              <div class="learn-item">
+                <span class="learn-badge essential">Essential</span>
+                <p>Required for login, shopping carts, and basic functionality.</p>
+              </div>
+              <div class="learn-item">
+                <span class="learn-badge analytics">Analytics</span>
+                <p>Track how you use sites to improve user experience.</p>
+              </div>
+              <div class="learn-item">
+                <span class="learn-badge advertising">Advertising</span>
+                <p>Build profiles to show targeted ads across the web.</p>
+              </div>
+              <div class="learn-item">
+                <span class="learn-badge social">Social</span>
+                <p>Enable sharing and track activity on social platforms.</p>
+              </div>
+              <div class="learn-item">
+                <span class="learn-badge fingerprinting">Fingerprinting</span>
+                <p>Identify you without cookies using device characteristics.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Why It Matters -->
+          <div class="learn-section">
+            <h3>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="8" x2="12" y2="12"></line>
+                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+              </svg>
+              Why Tracking Matters
+            </h3>
+            <div class="tracking-impact">
+              <div class="impact-item">
+                <div class="impact-icon warning">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                </div>
+                <span class="impact-text">Your browsing is monitored across sites</span>
+              </div>
+              <div class="impact-item">
+                <div class="impact-icon danger">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                </div>
+                <span class="impact-text">Detailed profiles built about you</span>
+              </div>
+              <div class="impact-item">
+                <div class="impact-icon warning">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+                </div>
+                <span class="impact-text">Your data is sold to advertisers</span>
+              </div>
+              <div class="impact-item">
+                <div class="impact-icon info">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                </div>
+                <span class="impact-text">Privacy is hard to reclaim</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Protect Yourself -->
+          <div class="learn-section">
+            <h3>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+              </svg>
+              Protect Your Privacy
+            </h3>
+            <div class="protection-grid">
+              <div class="protection-item">
+                <div class="protection-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                </div>
+                <span class="protection-text">Clear tracking cookies regularly</span>
+              </div>
+              <div class="protection-item">
+                <div class="protection-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                </div>
+                <span class="protection-text">Use private browsing mode</span>
+              </div>
+              <div class="protection-item">
+                <div class="protection-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                </div>
+                <span class="protection-text">Review cookie permissions</span>
+              </div>
+              <div class="protection-item">
+                <div class="protection-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                </div>
+                <span class="protection-text">Use Insight to monitor</span>
+              </div>
             </div>
           </div>
         </div>
       </div>
+
     </div>
-
-    <!-- Footer -->
-    <footer class="footer">
-      <a href="http://localhost:3000" target="_blank" class="footer-link">View Full Dashboard</a>
-    </footer>
   </div>
 
-  <script type="module" src="popup-redesign.js"></script>
+  <!-- Modular JavaScript Files -->
+  <script src="js/config.js"></script>
+  <script src="js/tracking-db.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/cookie-browser.js"></script>
+  <script src="js/domain-explorer.js"></script>
+  <script src="js/storage-browser.js"></script>
+  <script src="js/score-page.js"></script>
+  <script src="js/idb-browser.js"></script>
+  <script src="js/main.js"></script>
+
+  <!-- Keep the old file as backup, commented out -->
+  <!-- <script type="module" src="popup-redesign.js"></script> -->
 </body>
 </html>

@@ -700,22 +700,22 @@ export default function Home() {
                   const action = typeof rec === 'object' ? rec.action : null;
 
                   return (
-                    <div key={index} className="flex items-start gap-2 rounded-lg border-l-3 border-purple-500 bg-purple-50 p-3">
-                      <span className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-purple-600 text-xs font-bold text-white">
-                        {index + 1}
-                      </span>
-                      <div className="flex-1">
-                        <p className="text-sm font-medium text-gray-800">{title}</p>
-                        {description && <p className="text-xs text-gray-600 mt-0.5">{description}</p>}
+                    <div key={index} className="rounded-lg border-l-3 border-purple-500 bg-purple-50 p-3">
+                      <div className="flex items-center gap-2">
+                        <span className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-purple-600 text-xs font-bold text-white">
+                          {index + 1}
+                        </span>
+                        <p className="flex-1 text-sm font-medium text-gray-800 truncate">{title}</p>
+                        {action && (
+                          <button
+                            onClick={() => handleRecommendationAction(action)}
+                            className="flex-shrink-0 rounded-md bg-purple-600 px-3 py-1 text-xs font-semibold text-white hover:bg-purple-700 transition-all hover:scale-105 active:scale-95"
+                          >
+                            Fix
+                          </button>
+                        )}
                       </div>
-                      {action && (
-                        <button
-                          onClick={() => handleRecommendationAction(action)}
-                          className="flex-shrink-0 rounded-md bg-purple-600 px-2.5 py-1 text-xs font-semibold text-white hover:bg-purple-700"
-                        >
-                          Fix
-                        </button>
-                      )}
+                      {description && <p className="text-xs text-gray-600 mt-1 ml-7">{description}</p>}
                     </div>
                   );
                 })}

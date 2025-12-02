@@ -45,12 +45,13 @@
       <!-- 1. Total Cookies -->
       <div class="metric-card">
         <div class="metric-icon cookies-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="12" cy="12" r="10"></circle>
-            <circle cx="8" cy="9" r="1.5" fill="currentColor"></circle>
-            <circle cx="15" cy="8" r="1" fill="currentColor"></circle>
-            <circle cx="10" cy="14" r="1.5" fill="currentColor"></circle>
-            <circle cx="16" cy="13" r="1" fill="currentColor"></circle>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2a10 10 0 1 0 10 10 4 4 0 0 1-5-5 4 4 0 0 1-5-5"></path>
+            <path d="M8.5 8.5v.01"></path>
+            <path d="M16 15.5v.01"></path>
+            <path d="M12 12v.01"></path>
+            <path d="M11 17v.01"></path>
+            <path d="M7 14v.01"></path>
           </svg>
         </div>
         <div class="metric-content">
@@ -190,12 +191,139 @@
           </div>
         </div>
       </div>
+
+      <!-- Tracking Companies (Collapsible) -->
+      <div class="analysis-card" id="trackersCard">
+        <div class="analysis-header" id="trackersHeader" role="button" tabindex="0" aria-expanded="false">
+          <div class="analysis-title trackers-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="3" width="7" height="7"></rect>
+              <rect x="14" y="3" width="7" height="7"></rect>
+              <rect x="14" y="14" width="7" height="7"></rect>
+              <rect x="3" y="14" width="7" height="7"></rect>
+            </svg>
+            <span>Tracking Companies</span>
+            <span class="analysis-badge" id="trackersCount">0</span>
+          </div>
+          <div class="analysis-toggle">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+          </div>
+        </div>
+        <div class="analysis-content">
+          <div class="analysis-content-inner">
+            <div id="trackersList" class="trackers-list">
+              <p class="no-data">No tracking companies detected</p>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- Footer -->
     <footer class="footer">
       <a href="http://localhost:3000" target="_blank" class="footer-link">View Full Dashboard</a>
     </footer>
+  </div>
+
+  <!-- Settings View -->
+  <div class="settings-view" id="settingsView">
+    <div class="settings-card">
+      <div class="settings-header">
+        <button class="settings-back-btn" id="settingsBackBtn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M19 12H5M12 19l-7-7 7-7"/>
+          </svg>
+        </button>
+        <h2 class="settings-title">Settings</h2>
+      </div>
+
+      <div class="settings-content">
+        <!-- Scanning Section -->
+        <div class="settings-section">
+          <div class="settings-section-title">Scanning</div>
+
+          <div class="settings-item">
+            <div class="settings-item-info">
+              <div class="settings-item-label">Auto-Scan</div>
+              <div class="settings-item-desc">Automatically scan browser storage</div>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" id="settingsAutoScan">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+
+          <div class="settings-item">
+            <div class="settings-item-info">
+              <div class="settings-item-label">Scan Frequency</div>
+            </div>
+            <select id="settingsScanFrequency" class="settings-dropdown">
+              <option value="manual">Manual</option>
+              <option value="daily">Daily</option>
+              <option value="weekly">Weekly</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Notifications Section -->
+        <div class="settings-section">
+          <div class="settings-section-title">Notifications</div>
+
+          <div class="settings-item">
+            <div class="settings-item-info">
+              <div class="settings-item-label">Enable Notifications</div>
+              <div class="settings-item-desc">Get notified about privacy changes</div>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" id="settingsNotifications">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Privacy Section -->
+        <div class="settings-section">
+          <div class="settings-section-title">Privacy</div>
+
+          <div class="settings-item">
+            <div class="settings-item-info">
+              <div class="settings-item-label">Score Threshold</div>
+              <div class="settings-item-desc">Notify when score falls below</div>
+            </div>
+            <select id="settingsPrivacyThreshold" class="settings-dropdown">
+              <option value="90">90 - Very High</option>
+              <option value="80">80 - High</option>
+              <option value="70">70 - Medium</option>
+              <option value="60">60 - Low</option>
+              <option value="50">50 - Very Low</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Advanced Section -->
+        <div class="settings-section">
+          <div class="settings-section-title">Advanced</div>
+
+          <div class="settings-item">
+            <div class="settings-item-info">
+              <div class="settings-item-label">Debug Mode</div>
+              <div class="settings-item-desc">Enable verbose console logging</div>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" id="settingsDebugMode">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div class="settings-actions">
+        <button class="btn-save" id="settingsSaveBtn">Save Settings</button>
+        <button class="btn-reset" id="settingsResetBtn">Reset</button>
+      </div>
+    </div>
   </div>
 
   <script type="module" src="popup-redesign.js"></script>

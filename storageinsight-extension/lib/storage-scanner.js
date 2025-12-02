@@ -10,6 +10,8 @@
  * @version 2.0.0
  */
 
+import debug from './debug.js';
+
 /**
  * Wraps a promise with a timeout that ALWAYS resolves (never hangs).
  * If the promise hangs forever, this will still resolve with the fallback value.
@@ -139,12 +141,12 @@ function parseCookieDetails(cookie) {
  *
  * @example
  * const result = await scanCookies();
- * console.log(`Found ${result.totalCount} cookies`);
- * console.log(`Domain groups:`, Object.keys(result.byDomain));
+ * debug.log(`Found ${result.totalCount} cookies`);
+ * debug.log(`Domain groups:`, Object.keys(result.byDomain));
  */
 export async function scanCookies() {
   try {
-    console.log('🍪 Starting cookie scan...');
+    debug.log('🍪 Starting cookie scan...');
 
     // Get all cookies
     const rawCookies = await chrome.cookies.getAll({});
@@ -196,11 +198,11 @@ export async function scanCookies() {
       }
     };
 
-    console.log(`✅ Cookie scan complete: ${result.totalCount} cookies from ${result.metadata.domainCount} domains`);
+    debug.log(`✅ Cookie scan complete: ${result.totalCount} cookies from ${result.metadata.domainCount} domains`);
     return result;
 
   } catch (error) {
-    console.error('❌ Error scanning cookies:', error);
+    debug.error('❌ Error scanning cookies:', error);
     throw new Error(`Cookie scan failed: ${error.message}`);
   }
 }
@@ -216,17 +218,17 @@ export async function scanCookies() {
  *
  * @example
  * const result = await scanLocalStorage();
- * console.log(`Found ${result.totalItems} localStorage items`);
+ * debug.log(`Found ${result.totalItems} localStorage items`);
  */
 export async function scanLocalStorage() {
   try {
-    console.log('💾 Starting localStorage scan...');
+    debug.log('💾 Starting localStorage scan...');
 
     const allTabs = await chrome.tabs.query({});
     // Limit to 50 tabs to prevent slowdowns with many open tabs
     const tabs = allTabs.slice(0, 50);
     if (allTabs.length > 50) {
-      console.log(`⚠️ Limiting localStorage scan to 50 of ${allTabs.length} tabs`);
+      debug.log(`⚠️ Limiting localStorage scan to 50 of ${allTabs.length} tabs`);
     }
     const byDomain = {};
     let totalItems = 0;
@@ -303,11 +305,11 @@ export async function scanLocalStorage() {
       }
     };
 
-    console.log(`✅ LocalStorage scan complete: ${totalItems} items from ${result.metadata.domainCount} domains`);
+    debug.log(`✅ LocalStorage scan complete: ${totalItems} items from ${result.metadata.domainCount} domains`);
     return result;
 
   } catch (error) {
-    console.error('❌ Error scanning localStorage:', error);
+    debug.error('❌ Error scanning localStorage:', error);
     // Return empty result instead of throwing to prevent blocking other scans
     return {
       byDomain: {},
@@ -334,17 +336,17 @@ export async function scanLocalStorage() {
  *
  * @example
  * const result = await scanSessionStorage();
- * console.log(`Found ${result.totalItems} sessionStorage items across ${result.byTab.length} tabs`);
+ * debug.log(`Found ${result.totalItems} sessionStorage items across ${result.byTab.length} tabs`);
  */
 export async function scanSessionStorage() {
   try {
-    console.log('🔖 Starting sessionStorage scan...');
+    debug.log('🔖 Starting sessionStorage scan...');
 
     const allTabs = await chrome.tabs.query({});
     // Limit to 50 tabs to prevent slowdowns with many open tabs
     const tabs = allTabs.slice(0, 50);
     if (allTabs.length > 50) {
-      console.log(`⚠️ Limiting sessionStorage scan to 50 of ${allTabs.length} tabs`);
+      debug.log(`⚠️ Limiting sessionStorage scan to 50 of ${allTabs.length} tabs`);
     }
     const byDomain = {};
     const byTab = [];
@@ -442,11 +444,11 @@ export async function scanSessionStorage() {
       }
     };
 
-    console.log(`✅ SessionStorage scan complete: ${totalItems} items from ${result.metadata.tabCount} tabs`);
+    debug.log(`✅ SessionStorage scan complete: ${totalItems} items from ${result.metadata.tabCount} tabs`);
     return result;
 
   } catch (error) {
-    console.error('❌ Error scanning sessionStorage:', error);
+    debug.error('❌ Error scanning sessionStorage:', error);
     // Return empty result instead of throwing to prevent blocking other scans
     return {
       byDomain: {},
@@ -476,17 +478,17 @@ export async function scanSessionStorage() {
  *
  * @example
  * const result = await scanIndexedDB();
- * console.log(`Found ${result.totalDatabases} IndexedDB databases`);
+ * debug.log(`Found ${result.totalDatabases} IndexedDB databases`);
  */
 export async function scanIndexedDB() {
   try {
-    console.log('🗄️ Starting IndexedDB scan...');
+    debug.log('🗄️ Starting IndexedDB scan...');
 
     const allTabs = await chrome.tabs.query({});
     // Limit to 50 tabs to prevent slowdowns with many open tabs
     const tabs = allTabs.slice(0, 50);
     if (allTabs.length > 50) {
-      console.log(`⚠️ Limiting IndexedDB scan to 50 of ${allTabs.length} tabs`);
+      debug.log(`⚠️ Limiting IndexedDB scan to 50 of ${allTabs.length} tabs`);
     }
     const byDomain = {};
     let totalDatabases = 0;
@@ -623,11 +625,11 @@ export async function scanIndexedDB() {
       }
     };
 
-    console.log(`✅ IndexedDB scan complete: ${totalDatabases} databases with ${totalObjectStores} object stores`);
+    debug.log(`✅ IndexedDB scan complete: ${totalDatabases} databases with ${totalObjectStores} object stores`);
     return result;
 
   } catch (error) {
-    console.error('❌ Error scanning IndexedDB:', error);
+    debug.error('❌ Error scanning IndexedDB:', error);
     // Return empty result instead of throwing to prevent blocking other scans
     return {
       byDomain: {},
@@ -659,11 +661,11 @@ export async function scanIndexedDB() {
  *
  * @example
  * const results = await scanAllStorage();
- * console.log('Total storage:', results.summary.totalSizeMB, 'MB');
- * console.log('Total items:', results.summary.totalItems);
+ * debug.log('Total storage:', results.summary.totalSizeMB, 'MB');
+ * debug.log('Total items:', results.summary.totalItems);
  */
 export async function scanAllStorage() {
-  console.log('🔍 Starting comprehensive storage scan...');
+  debug.log('🔍 Starting comprehensive storage scan...');
 
   const startTime = Date.now();
   const errors = [];
@@ -749,9 +751,9 @@ export async function scanAllStorage() {
     }
   };
 
-  console.log(`✅ Complete storage scan finished in ${scanDuration}ms`);
-  console.log(`   Total: ${results.summary.totalSizeMB} MB across ${results.summary.totalItems} items`);
-  console.log(`   Domains: ${results.summary.uniqueDomains}`);
+  debug.log(`✅ Complete storage scan finished in ${scanDuration}ms`);
+  debug.log(`   Total: ${results.summary.totalSizeMB} MB across ${results.summary.totalItems} items`);
+  debug.log(`   Domains: ${results.summary.uniqueDomains}`);
 
   return results;
 }
@@ -762,7 +764,7 @@ export async function scanAllStorage() {
  */
 export class StorageScanner {
   constructor() {
-    console.warn('StorageScanner class is deprecated. Use individual export functions instead.');
+    debug.warn('StorageScanner class is deprecated. Use individual export functions instead.');
   }
 
   async scanAll() {

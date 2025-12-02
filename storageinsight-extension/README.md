@@ -150,12 +150,9 @@ storageinsight-extension/
 
 ### Building for Production
 
-1. Remove any development/debug code
-2. Test thoroughly across multiple websites
-3. Verify all permissions are necessary
-4. Update version in `manifest.json`
-5. Zip the extension folder (exclude README.md and dev files)
-6. Submit to Chrome Web Store (optional)
+1. Follow the detailed instructions in [PUBLISHING.md](PUBLISHING.md).
+2. Run the packaging script: `node scripts/package.js`
+3. Upload the generated zip file to the Chrome Web Store.
 
 ## 🔗 Integration with Main App
 

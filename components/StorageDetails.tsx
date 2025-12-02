@@ -52,8 +52,8 @@ export default function StorageDetails({
     if (!data) return null;
 
     const totalBytes = data.summary?.totalSizeBytes || 0;
-    // Estimate quota based on browser defaults (typically 50% of available disk or ~10GB)
-    const estimatedQuotaBytes = 10 * 1024 * 1024 * 1024; // 10GB default
+    // Use a realistic quota for browser storage (50 MB typical for localStorage/cookies)
+    const estimatedQuotaBytes = 50 * 1024 * 1024; // 50 MB default
     const usedMB = (totalBytes / (1024 * 1024)).toFixed(2);
     const quotaMB = (estimatedQuotaBytes / (1024 * 1024)).toFixed(0);
     const percentUsed = ((totalBytes / estimatedQuotaBytes) * 100).toFixed(1);

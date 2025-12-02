@@ -77,3 +77,4 @@ npx_*.txt
 # Test/debug JSON files
 init_request*.json
 response*.json
+storageinsight-extension/dist/

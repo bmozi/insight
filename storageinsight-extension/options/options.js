@@ -3,11 +3,23 @@
  * Handles settings page functionality
  */
 
+// Debug utility (inline for non-module scripts)
+let _debugEnabled = false;
+try {
+  chrome.storage.local.get(['debugMode'], (r) => { _debugEnabled = r?.debugMode || false; });
+} catch (e) { /* ignore */ }
+const debug = {
+  log: (...args) => { if (_debugEnabled) debug.log(...args); },
+  warn: (...args) => { console.warn(...args); },
+  error: (...args) => { debug.error(...args); }
+};
+
 // DOM elements
 const autoScanEnabled = document.getElementById('autoScanEnabled');
 const scanFrequency = document.getElementById('scanFrequency');
 const notifications = document.getElementById('notifications');
 const privacyThreshold = document.getElementById('privacyThreshold');
+const debugMode = document.getElementById('debugMode');
 const saveBtn = document.getElementById('saveBtn');
 const resetBtn = document.getElementById('resetBtn');
 const statusMessage = document.getElementById('statusMessage');
@@ -18,6 +30,7 @@ const defaultSettings = {
   autoScanEnabled: false,
   notifications: true,
   privacyThreshold: 70,
+  debugMode: false,
 };
 
 /**
@@ -33,10 +46,9 @@ async function loadSettings() {
     scanFrequency.value = settings.scanFrequency || 'manual';
     notifications.checked = settings.notifications !== false; // default true
     privacyThreshold.value = settings.privacyThreshold || 70;
-
-    console.log('✅ Settings loaded:', settings);
+    debugMode.checked = settings.debugMode || false;
   } catch (error) {
-    console.error('❌ Error loading settings:', error);
+    debug.error('❌ Error loading settings:', error);
     showStatus('Error loading settings', 'error');
   }
 }
@@ -51,7 +63,11 @@ async function saveSettings() {
       scanFrequency: scanFrequency.value,
       notifications: notifications.checked,
       privacyThreshold: parseInt(privacyThreshold.value),
+      debugMode: debugMode.checked,
     };
+
+    // Also save debugMode separately for the debug utility
+    await chrome.storage.local.set({ debugMode: debugMode.checked });
 
     // Save to storage
     await chrome.storage.local.set({ settings });
@@ -62,10 +78,10 @@ async function saveSettings() {
       data: settings,
     });
 
-    console.log('✅ Settings saved:', settings);
+    debug.log('✅ Settings saved:', settings);
     showStatus('Settings saved successfully!', 'success');
   } catch (error) {
-    console.error('❌ Error saving settings:', error);
+    debug.error('❌ Error saving settings:', error);
     showStatus('Error saving settings', 'error');
   }
 }
@@ -84,10 +100,10 @@ async function resetSettings() {
     // Reload the form
     await loadSettings();
 
-    console.log('✅ Settings reset to defaults');
+    debug.log('✅ Settings reset to defaults');
     showStatus('Settings reset to defaults', 'success');
   } catch (error) {
-    console.error('❌ Error resetting settings:', error);
+    debug.error('❌ Error resetting settings:', error);
     showStatus('Error resetting settings', 'error');
   }
 }
@@ -112,4 +128,4 @@ resetBtn.addEventListener('click', resetSettings);
 // Load settings on page load
 loadSettings();
 
-console.log('✅ Options page loaded');
+debug.log('✅ Options page loaded');
